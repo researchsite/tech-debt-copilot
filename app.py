@@ -2,8 +2,8 @@
 app.py -- Tech Debt Copilot: Streamlit Chat Interface
 
 Two-panel layout:
-  Left sidebar: Thread management + persona quick-starts
-  Right main:   Streaming chat with live tool-call status
+  Left sidebar: Thread management + persona quick-starts + repo scanner + TTS toggle
+  Right main:   Streaming chat with live tool-call status + optional voice output
 """
 
 import os
@@ -17,7 +17,31 @@ load_dotenv()
 
 MONGO_URI   = os.getenv("MONGO_URI")
 MONGO_DB    = os.getenv("MONGO_DB", "techdebt_copilot")
-MAX_INPUT   = 500   # chars -- prevents runaway prompts + token abuse
+MAX_INPUT   = 1000  # chars -- increased to allow repo URLs in messages
+
+
+# -- ElevenLabs TTS ------------------------------------------------------------
+
+def _tts(text: str) -> bytes | None:
+    """Generate TTS audio bytes. Returns None if key not set or on error."""
+    api_key = os.getenv("ELEVENLABS_API_KEY", "").strip()
+    if not api_key:
+        return None
+    try:
+        from elevenlabs.client import ElevenLabs
+        voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM").strip()
+        client   = ElevenLabs(api_key=api_key)
+        # Trim to ~2000 chars for TTS (summaries, not raw data dumps)
+        tts_text = text[:2000].rsplit(" ", 1)[0] if len(text) > 2000 else text
+        stream   = client.text_to_speech.convert(
+            voice_id=voice_id,
+            text=tts_text,
+            model_id="eleven_multilingual_v2",
+            output_format="mp3_22050_32",
+        )
+        return b"".join(stream)
+    except Exception:
+        return None
 
 
 # -- Input security ------------------------------------------------------------
@@ -93,6 +117,8 @@ if "messages"    not in st.session_state:
     st.session_state.messages       = []   # [{role, content}]
 if "quick_prompt" not in st.session_state:
     st.session_state.quick_prompt   = None
+if "tts_enabled" not in st.session_state:
+    st.session_state.tts_enabled    = False
 
 
 # -- Sidebar -------------------------------------------------------------------
@@ -149,12 +175,42 @@ with st.sidebar:
             st.rerun()
 
     st.divider()
+    st.subheader("Scan a Repository")
+    st.caption("GitHub URL or local path")
+    repo_input = st.text_input(
+        "Repo URL or path",
+        placeholder="https://github.com/owner/repo",
+        label_visibility="collapsed",
+        key="repo_input_field",
+    )
+    if st.button("Scan Repo", use_container_width=True, type="primary"):
+        if repo_input.strip():
+            st.session_state.quick_prompt = (
+                f"Scan this repository for EOL risks and tell me what needs attention: {repo_input.strip()}"
+            )
+            st.rerun()
+        else:
+            st.warning("Enter a GitHub URL or local folder path.")
+
+    st.divider()
+
+    # ElevenLabs voice toggle
+    has_elevenlabs = bool(os.getenv("ELEVENLABS_API_KEY", "").strip())
+    tts_label = "Voice Output (ElevenLabs)" if has_elevenlabs else "Voice Output (add API key to .env)"
+    st.session_state.tts_enabled = st.toggle(
+        tts_label,
+        value=st.session_state.tts_enabled,
+        disabled=not has_elevenlabs,
+        help="Reads the assistant's response aloud using ElevenLabs TTS.",
+    )
+
+    st.divider()
     st.markdown(
         '<div class="sponsor-strip">'
         'Powered by<br>'
         '<b>MongoDB Atlas</b> Vector Search + Checkpointer<br>'
-        '<b>Voyage AI</b> voyage-3 Embeddings<br>'
-        '<b>Fireworks AI</b> firefunction-v2<br>'
+        '<b>Voyage AI</b> voyage-3.5 Embeddings<br>'
+        '<b>Fireworks AI</b> deepseek-v4-flash<br>'
         '<b>LangGraph</b> + endoflife.date API'
         '</div>',
         unsafe_allow_html=True,
@@ -237,5 +293,12 @@ if user_input:
             full_response = f"(!)️ Agent error: {exc}\n\nCheck that `.env` is configured and the vector index is active."
             response_holder.error(full_response)
             status_box.update(label="Error", state="error", expanded=False)
+
+        # ElevenLabs TTS -- play response if voice is enabled
+        if st.session_state.get("tts_enabled") and full_response and "error" not in full_response.lower()[:20]:
+            with st.spinner("Generating audio..."):
+                audio_bytes = _tts(full_response)
+            if audio_bytes:
+                st.audio(audio_bytes, format="audio/mpeg", autoplay=True)
 
     st.session_state.messages.append({"role": "assistant", "content": full_response})

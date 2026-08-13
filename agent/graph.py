@@ -6,7 +6,7 @@ Architecture:
   - Short-term memory: MongoDBSaver checkpointer (conversation threads survive restarts)
   - Long-term memory: MongoDB Atlas Vector Search (EOL knowledge base)
   - Tools: search_eol_data, check_cve_vulnerabilities, find_upcoming_eols,
-           analyze_industry_trends, scan_local_stack
+           analyze_industry_trends, scan_local_stack, scan_repository
 """
 
 import os
@@ -24,7 +24,7 @@ except ImportError:
 
 from agent.tools import (
     search_eol_data, check_cve_vulnerabilities,
-    find_upcoming_eols, analyze_industry_trends, scan_local_stack,
+    find_upcoming_eols, analyze_industry_trends, scan_local_stack, scan_repository,
 )
 
 load_dotenv()
@@ -56,6 +56,12 @@ Your tools:
   and cross-references every detected package against the EOL database.
   Call this when asked to "scan my machine", "check my stack", "what's at risk on my laptop".
 
+- scan_repository(repo_url_or_path) -- Scans a GitHub repo URL or local project folder.
+  Parses requirements.txt, package.json, pyproject.toml, go.mod, .nvmrc, etc.
+  Cross-references every dependency against the EOL database.
+  Call this when the user provides a GitHub URL or folder path to audit.
+  Examples: "scan https://github.com/owner/repo", "check my project at C:/projects/app"
+
 Response format:
   Product + Version
   EOL Date
@@ -70,7 +76,7 @@ Rules:
 - You remember the full conversation -- resolve "it" and "that version" from context.
 - Be concise but actionable. Engineers are busy."""
 
-TOOLS     = [search_eol_data, check_cve_vulnerabilities, find_upcoming_eols, analyze_industry_trends, scan_local_stack]
+TOOLS     = [search_eol_data, check_cve_vulnerabilities, find_upcoming_eols, analyze_industry_trends, scan_local_stack, scan_repository]
 TOOL_NODE = ToolNode(TOOLS)
 
 

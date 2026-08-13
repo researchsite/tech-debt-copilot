@@ -1,12 +1,13 @@
 """
 agent/tools.py -- LangGraph tools for the Tech Debt Copilot
 
-Five tools the agent can call:
+Six tools the agent can call:
   1. search_eol_data           -- MongoDB $vectorSearch + $eq pre-filter (Voyage AI)
   2. check_cve_vulnerabilities -- OSV.dev API live CVE cross-reference
   3. find_upcoming_eols        -- Products expiring within N days (MongoDB aggregation)
   4. analyze_industry_trends   -- EOL exposure by technology category + trend insights
   5. scan_local_stack          -- Detect installed software and cross-reference against EOL DB
+  6. scan_repository           -- Parse GitHub URL or local path dependency files + EOL check
 """
 
 import os
@@ -557,3 +558,167 @@ def scan_local_stack() -> str:
 
     except Exception as exc:
         return f"EOL lookup error during scan: {exc}"
+
+
+# -- Tool 6: Repository dependency scanner -------------------------------------
+
+@tool
+def scan_repository(repo_url_or_path: str) -> str:
+    """
+    Scan a GitHub repository or local project folder for tracked dependencies
+    and cross-reference each against the EOL database.
+
+    Parses: requirements.txt, pyproject.toml, Pipfile, package.json,
+            .nvmrc, .node-version, go.mod
+
+    Args:
+        repo_url_or_path: GitHub URL  e.g. https://github.com/owner/repo
+                          OR local path e.g. C:/projects/myapp
+
+    Call this when the user says:
+    - "scan this repo: <url>"
+    - "check this GitHub project for EOL issues"
+    - "audit my project at <path>"
+    - "what's at risk in <repo>?"
+    """
+    from agent.repo_scanner import scan_repo
+    from datetime import datetime, UTC
+
+    source = repo_url_or_path.strip()
+    if not source:
+        return "Please provide a GitHub URL or local folder path."
+
+    try:
+        deps, meta = scan_repo(source)
+    except ValueError as exc:
+        return f"Cannot access repository: {exc}"
+    except Exception as exc:
+        return f"Repository scan error: {exc}"
+
+    if not deps:
+        label       = meta.get("repo") or meta.get("path") or source
+        files_found = meta.get("files_found", [])
+        files_str   = ", ".join(files_found) if files_found else "none"
+        note = (
+            f"Found dependency files ({files_str}) but none of the packages "
+            "are tracked in the endoflife.date database. "
+            "The repo likely uses infrastructure packages (LangChain, Streamlit, etc.) "
+            "rather than the web frameworks and runtimes we track."
+            if files_found else
+            "No dependency files found (requirements.txt, package.json, pyproject.toml, go.mod, .nvmrc). "
+            "Files may be in subdirectories or the repo uses a different package manager."
+        )
+        return f"No tracked EOL risks found in {label}.\n{note}"
+
+    try:
+        collection = _mongo()
+        today      = datetime.now(UTC).date()
+        today_str  = today.isoformat()
+
+        found     = []
+        not_found = []
+
+        for item in deps:
+            doc = collection.find_one(
+                {"product_name": item["eol_product"], "cycle": item["cycle"]},
+                {
+                    "eol": 1, "eol_display": 1, "extended_support": 1,
+                    "product_label": 1, "lts": 1, "support": 1,
+                    "_id": 0,
+                },
+            )
+            if not doc:
+                not_found.append(f"{item['package']} {item['version']} (cycle {item['cycle']})")
+                continue
+
+            eol_str     = doc.get("eol")
+            eol_display = doc.get("eol_display", "unknown")
+            label       = doc.get("product_label") or item["eol_product"]
+            lts         = doc.get("lts", False)
+            ext         = doc.get("extended_support")
+
+            days = None
+            if eol_str:
+                try:
+                    eol_date = datetime.strptime(eol_str, "%Y-%m-%d").date()
+                    days = (eol_date - today).days
+                except ValueError:
+                    pass
+
+            if days is None:
+                urgency = "OK"
+            elif days < 0:
+                urgency = "EXPIRED"
+            elif days <= 30:
+                urgency = "CRITICAL"
+            elif days <= 90:
+                urgency = "HIGH"
+            elif days <= 365:
+                urgency = "MEDIUM"
+            else:
+                urgency = "OK"
+
+            found.append({
+                "label":            label,
+                "package":          item["package"],
+                "version":          item["version"],
+                "cycle":            item["cycle"],
+                "eol_display":      eol_display,
+                "days":             days,
+                "urgency":          urgency,
+                "lts":              lts,
+                "extended_support": ext,
+                "source_file":      item.get("file", ""),
+            })
+
+        urgency_rank = {"EXPIRED": 0, "CRITICAL": 1, "HIGH": 2, "MEDIUM": 3, "OK": 4}
+        found.sort(key=lambda x: (urgency_rank.get(x["urgency"], 5), x.get("days") or 9999))
+
+        repo_label = meta.get("repo") or meta.get("path") or source
+        files_found = ", ".join(meta.get("files_found", [])) or "none"
+
+        lines = [f"REPOSITORY SCAN -- {repo_label}"]
+        lines.append(f"Scanned: {today_str} | Dependency files found: {files_found}\n")
+        lines.append(
+            f"Tracked dependencies: {len(found) + len(not_found)} detected, "
+            f"{len(found)} matched in EOL database.\n"
+        )
+
+        for urgency in ["EXPIRED", "CRITICAL", "HIGH", "MEDIUM", "OK"]:
+            group = [f for f in found if f["urgency"] == urgency]
+            if not group:
+                continue
+            lines.append(f"\n[{urgency}]")
+            for f in group:
+                lts_tag  = " [LTS]" if f["lts"] else ""
+                if f["days"] is not None:
+                    age = abs(f["days"])
+                    day_str = f"{age}d ago" if f["days"] < 0 else f"{age}d remaining"
+                else:
+                    day_str = "no EOL date"
+                ext_note = f" | Extended: {f['extended_support']}" if f.get("extended_support") else ""
+                lines.append(
+                    f"  {f['label']} {f['version']} (cycle {f['cycle']}){lts_tag}"
+                    f" -- EOL: {f['eol_display']} ({day_str}){ext_note}"
+                    f"  [from {f['source_file']}]"
+                )
+
+        if not_found:
+            lines.append(f"\n[CYCLE NOT IN EOL DATABASE] ({len(not_found)} packages)")
+            lines.append("  " + ", ".join(not_found[:10]))
+            if len(not_found) > 10:
+                lines.append(f"  ...and {len(not_found) - 10} more")
+
+        risk_count = sum(1 for f in found if f["urgency"] in ("EXPIRED", "CRITICAL", "HIGH"))
+        if risk_count:
+            lines.append(
+                f"\nSummary: {risk_count} package(s) need immediate attention. "
+                "Ask me for upgrade recommendations or CVE details."
+            )
+        else:
+            lines.append("\nSummary: No critical EOL risks found. Stack looks healthy.")
+
+        return "\n".join(lines)
+
+    except Exception as exc:
+        return f"EOL lookup error during repo scan: {exc}"
