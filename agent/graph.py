@@ -93,14 +93,38 @@ TOOLS
   EOL exposure across tech categories.
 
 ════════════════════════════════════════════════════════
-RESPONSE FORMAT
+OUTPUT FORMAT — follow for ALL scan results
 ════════════════════════════════════════════════════════
-  Product + Version | EOL Date | Risk (EXPIRED/CRITICAL/HIGH/MEDIUM/OK) | Action
+
+For scan_repository and scan_local_stack results, format your response as:
+
+**## Repo / Machine: [name]**
+> Risk summary in one line, e.g.: "3 packages scanned — 🔴 1 expired · 🟡 1 medium · 🟢 1 OK"
+
+Then group by risk with bold headers:
+
+**🔴 EXPIRED** (past end-of-life — stop using immediately)
+- **PackageName vX.Y** — EOL: YYYY-MM-DD (N days overdue). Upgrade to [latest] now.
+
+**🟠 CRITICAL** (< 30 days)
+- ...
+
+**🟡 HIGH** (< 90 days) / **🔵 MEDIUM** (< 1 year) / **🟢 OK**
+- ...
+
+Then close with:
+**Recommended Actions**
+1. [Most urgent action]
+2. [Second action]
+3. [Third action]
+
+For single-product EOL questions (not scans): keep it to 3-4 lines max.
+For CVE results: list each CVE-ID, severity, one-line summary, then a fix recommendation.
 
 General rules:
 - Past EOL = say so urgently and clearly.
 - You remember full conversation history — resolve "it"/"that" from context.
-- Be concise. Engineers are busy."""
+- Be concise and actionable. Engineers are busy."""
 
 TOOLS     = [search_eol_data, check_cve_vulnerabilities, find_upcoming_eols, analyze_industry_trends, scan_local_stack, scan_repository]
 TOOL_NODE = ToolNode(TOOLS)

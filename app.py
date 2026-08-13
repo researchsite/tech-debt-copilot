@@ -1,9 +1,5 @@
 """
 app.py -- Tech Debt Copilot: Streamlit Chat Interface
-
-Two-panel layout:
-  Left sidebar: Thread management + persona quick-starts + repo scanner + TTS toggle
-  Right main:   Streaming chat with live tool-call status + optional voice output
 """
 
 import os
@@ -15,15 +11,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI   = os.getenv("MONGO_URI")
-MONGO_DB    = os.getenv("MONGO_DB", "techdebt_copilot")
-MAX_INPUT   = 1000  # chars -- increased to allow repo URLs in messages
+MONGO_URI = os.getenv("MONGO_URI")
+MONGO_DB  = os.getenv("MONGO_DB", "techdebt_copilot")
+MAX_INPUT = 1000
 
 
 # -- ElevenLabs TTS ------------------------------------------------------------
 
 def _tts(text: str) -> bytes | None:
-    """Generate TTS audio bytes. Returns None if key not set or on error."""
     api_key = os.getenv("ELEVENLABS_API_KEY", "").strip()
     if not api_key:
         return None
@@ -31,7 +26,6 @@ def _tts(text: str) -> bytes | None:
         from elevenlabs.client import ElevenLabs
         voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM").strip()
         client   = ElevenLabs(api_key=api_key)
-        # Trim to ~2000 chars for TTS (summaries, not raw data dumps)
         tts_text = text[:2000].rsplit(" ", 1)[0] if len(text) > 2000 else text
         stream   = client.text_to_speech.convert(
             voice_id=voice_id,
@@ -46,7 +40,6 @@ def _tts(text: str) -> bytes | None:
 
 # -- Input security ------------------------------------------------------------
 
-# Patterns that indicate prompt injection or jailbreak attempts
 _INJECTION_PATTERNS = re.compile(
     r"(ignore (previous|all|prior)|forget (everything|instructions)|"
     r"you are now|act as|disregard|system prompt|jailbreak|"
@@ -57,27 +50,14 @@ _INJECTION_PATTERNS = re.compile(
 
 
 def sanitize_input(text: str) -> tuple[str, str | None]:
-    """
-    Validate and clean user input.
-    Returns (cleaned_text, error_message_or_None).
-    """
     text = text.strip()
-
     if not text:
         return "", "Please enter a question."
-
     if len(text) > MAX_INPUT:
-        return "", f"Query too long ({len(text)} chars). Please keep it under {MAX_INPUT} characters."
-
+        return "", f"Query too long ({len(text)} chars). Keep it under {MAX_INPUT}."
     if _INJECTION_PATTERNS.search(text):
-        return "", (
-            "That query pattern isn't supported. "
-            "Ask me about software versions, EOL dates, or CVE risks."
-        )
-
-    # Strip null bytes and control characters (keep newlines for multi-line stack pastes)
+        return "", "That query pattern isn't supported. Ask about software versions, EOL dates, or CVE risks."
     text = re.sub(r"[\x00-\x08\x0b-\x1f\x7f]", "", text)
-
     return text, None
 
 
@@ -92,126 +72,219 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* Slightly tighten chat bubbles */
-.stChatMessage { padding: 0.6rem 1rem; }
-/* Sponsor badge strip */
-.sponsor-strip { font-size: 0.72rem; color: #888; text-align: center; margin-top: 1rem; }
+.stChatMessage { padding: 0.5rem 1rem; }
+
+.risk-banner {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    margin: 0.3rem 0;
+    font-size: 0.85rem;
+}
+
+.demo-step-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.repo-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #1e3a5f;
+    color: #7ec8e3;
+    margin-bottom: 4px;
+}
+
+.sponsor-strip {
+    font-size: 0.7rem;
+    color: #666;
+    text-align: center;
+    margin-top: 0.5rem;
+    line-height: 1.8;
+}
+
+.followup-hint {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 4px;
+}
 </style>
 """, unsafe_allow_html=True)
 
 
-# -- Cached resources (created once per Streamlit session) ---------------------
+# -- Cached resources ----------------------------------------------------------
 
-@st.cache_resource(show_spinner="Connecting to MongoDB Atlas & loading agent...")
+@st.cache_resource(show_spinner="Connecting to MongoDB Atlas...")
 def _get_graph():
     from agent.graph import build_graph, get_checkpointer
     cp = get_checkpointer()
     return build_graph(checkpointer=cp)
 
 
-# -- Session state init --------------------------------------------------------
+# -- Session state -------------------------------------------------------------
 
-if "thread_id"   not in st.session_state:
-    st.session_state.thread_id      = str(uuid.uuid4())
-if "messages"    not in st.session_state:
-    st.session_state.messages       = []   # [{role, content}]
-if "quick_prompt" not in st.session_state:
-    st.session_state.quick_prompt   = None
-if "tts_enabled" not in st.session_state:
-    st.session_state.tts_enabled    = False
+def _init_state():
+    defaults = {
+        "thread_id":      str(uuid.uuid4()),
+        "messages":       [],
+        "quick_prompt":   None,   # actual LLM prompt
+        "display_prompt": None,   # what the user sees in chat
+        "last_tools":     [],     # tools called in last turn
+        "tts_enabled":    False,
+    }
+    for k, v in defaults.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+
+_init_state()
+
+
+# -- Demo content --------------------------------------------------------------
+
+DEMO_REPOS = [
+    (
+        "Django Legacy App (2016)",
+        "https://github.com/gothinkster/django-realworld-example-app",
+        "Django 1.10.5 — expired 2017",
+    ),
+    (
+        "React Redux App",
+        "https://github.com/gothinkster/react-redux-realworld-example-app",
+        "React 16 era",
+    ),
+    (
+        "Express.js Backend",
+        "https://github.com/gothinkster/node-express-realworld-example-app",
+        "Node / Express",
+    ),
+]
+
+QUICK_PERSONAS = {
+    "Industry EOL Trends": (
+        "Give me the full industry EOL trend breakdown across all tech categories. "
+        "Which categories have the most versions expiring this year?",
+        "Industry EOL Trends",
+    ),
+    "90-Day Triage": (
+        "Run a critical 90-day EOL triage. What's expiring in the next 90 days?",
+        "90-Day Triage",
+    ),
+    "Ubuntu + CVEs": (
+        "Our servers run Ubuntu 18.04 and 20.04. What's our EOL exposure and are there active CVEs?",
+        "Ubuntu 18.04 + 20.04 — EOL and CVE check",
+    ),
+    "MongoDB + Postgres Stack": (
+        "We run MongoDB 4.4, PostgreSQL 11, and Redis 6 in production. Migration deadlines?",
+        "MongoDB 4.4 / PostgreSQL 11 / Redis 6 — migration deadlines",
+    ),
+}
+
+FOLLOWUP_AFTER_SCAN = [
+    ("Check CVEs for expired packages", "Check CVEs for any expired packages found in the last scan"),
+    ("Upgrade path?", "Give me the upgrade path for the highest-risk package in the last scan"),
+    ("How long to fix?", "Roughly how long would it take to upgrade the expired dependencies found?"),
+]
+
+FOLLOWUP_AFTER_EOL = [
+    ("Check CVEs for this", "Check CVEs for the versions we just discussed"),
+    ("What expires next 90 days?", "What else is expiring in the next 90 days in the same category?"),
+    ("Extended support options?", "Are there extended support options for the products we just discussed?"),
+]
+
+
+def _set_prompt(llm_prompt: str, display: str):
+    st.session_state.quick_prompt   = llm_prompt
+    st.session_state.display_prompt = display
+    st.rerun()
 
 
 # -- Sidebar -------------------------------------------------------------------
 
 with st.sidebar:
-    st.title("Tech Debt Copilot")
-    st.caption("Persistent context over your entire tech stack")
+    st.markdown("## Tech Debt Copilot")
+    st.caption("Persistent AI audit of your software lifecycle")
 
-    st.divider()
-
+    # Thread control
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.caption(f"Thread `{st.session_state.thread_id[:12]}...`")
+        st.caption(f"Thread `{st.session_state.thread_id[:10]}...`")
     with col2:
         if st.button("New", help="Start a new conversation thread"):
-            st.session_state.thread_id = str(uuid.uuid4())
-            st.session_state.messages  = []
+            st.session_state.thread_id    = str(uuid.uuid4())
+            st.session_state.messages     = []
+            st.session_state.last_tools   = []
             st.rerun()
 
     st.divider()
-    st.subheader("Demo Personas")
-    st.caption("Click to run a pre-built audit scenario")
 
-    PERSONAS = {
-        "[SCAN] My Installed Stack": (
-            "Scan my locally installed software and tell me what's expired or at risk. "
-            "Show me everything you find, grouped by urgency."
-        ),
-        "DevOps / Database": (
-            "We're running MongoDB 4.4, PostgreSQL 11, and Redis 6 in production. "
-            "What are our migration deadlines and risk levels?"
-        ),
-        "Security + CVE": (
-            "Our servers run Ubuntu 18.04 and Ubuntu 20.04. "
-            "What's our EOL exposure, and are there active CVEs I should know about?"
-        ),
-        "Cloud / Containers": (
-            "We deploy on Kubernetes 1.22 and Alpine Linux 3.12. "
-            "What are our container infrastructure risk factors?"
-        ),
-        "Industry Trends": (
-            "Give me the full industry EOL trend breakdown. "
-            "Which technology categories have the most versions expiring this year?"
-        ),
-        "90-Day Triage": (
-            "Run a critical 90-day EOL triage. "
-            "What software is expiring in the next 90 days and what's the risk?"
-        ),
-    }
-
-    for label, prompt in PERSONAS.items():
-        if st.button(label, use_container_width=True):
-            st.session_state.quick_prompt = prompt
-            st.rerun()
+    # ── STEP 1: Local scan ────────────────────────────────────────────────
+    st.markdown('<div class="demo-step-label">Step 1 — Scan this machine</div>', unsafe_allow_html=True)
+    if st.button("Scan My Installed Stack", use_container_width=True, type="primary"):
+        _set_prompt(
+            "Scan my locally installed software and tell me what's expired or at risk. Show everything grouped by urgency.",
+            "Scan my installed stack",
+        )
 
     st.divider()
-    st.subheader("Scan a Repository")
-    st.caption("GitHub URL or local path")
+
+    # ── STEP 2: Repo scan ────────────────────────────────────────────────
+    st.markdown('<div class="demo-step-label">Step 2 — Scan a GitHub repo</div>', unsafe_allow_html=True)
+
+    for label, url, hint in DEMO_REPOS:
+        st.markdown(f'<div class="repo-badge">{hint}</div>', unsafe_allow_html=True)
+        if st.button(label, use_container_width=True, key=f"repo_{label}"):
+            _set_prompt(
+                f"Use the scan_repository tool on this target: {url}",
+                f"Scan repo: {url}",
+            )
+
+    st.caption("or enter a custom URL / local path:")
     repo_input = st.text_input(
-        "Repo URL or path",
-        placeholder="https://github.com/owner/repo",
+        "custom repo",
+        placeholder="https://github.com/owner/repo   or   C:/projects/myapp",
         label_visibility="collapsed",
         key="repo_input_field",
     )
-    if st.button("Scan Repo", use_container_width=True, type="primary"):
+    if st.button("Scan", use_container_width=True):
         if repo_input.strip():
-            st.session_state.quick_prompt = (
-                f"Use the scan_repository tool on this target: {repo_input.strip()}"
+            target = repo_input.strip()
+            _set_prompt(
+                f"Use the scan_repository tool on this target: {target}",
+                f"Scan repo: {target}",
             )
-            st.rerun()
         else:
             st.warning("Enter a GitHub URL or local folder path.")
 
     st.divider()
 
-    # ElevenLabs voice toggle
+    # ── STEP 3: Quick questions ───────────────────────────────────────────
+    st.markdown('<div class="demo-step-label">Step 3 — Quick questions</div>', unsafe_allow_html=True)
+    for label, (llm_prompt, display) in QUICK_PERSONAS.items():
+        if st.button(label, use_container_width=True, key=f"persona_{label}"):
+            _set_prompt(llm_prompt, display)
+
+    st.divider()
+
+    # ── Settings ──────────────────────────────────────────────────────────
     has_elevenlabs = bool(os.getenv("ELEVENLABS_API_KEY", "").strip())
-    tts_label = "Voice Output (ElevenLabs)" if has_elevenlabs else "Voice Output (add API key to .env)"
+    tts_label = "Voice Output (ElevenLabs)" if has_elevenlabs else "Voice Output (key not set)"
     st.session_state.tts_enabled = st.toggle(
         tts_label,
         value=st.session_state.tts_enabled,
         disabled=not has_elevenlabs,
-        help="Reads the assistant's response aloud using ElevenLabs TTS.",
     )
 
     st.divider()
     st.markdown(
         '<div class="sponsor-strip">'
-        'Powered by<br>'
-        '<b>MongoDB Atlas</b> Vector Search + Checkpointer<br>'
-        '<b>Voyage AI</b> voyage-3.5 Embeddings<br>'
-        '<b>Fireworks AI</b> deepseek-v4-flash<br>'
-        '<b>LangGraph</b> + endoflife.date API'
+        'MongoDB Atlas &nbsp;|&nbsp; Voyage AI<br>'
+        'Fireworks AI &nbsp;|&nbsp; LangGraph<br>'
+        'endoflife.date &nbsp;|&nbsp; OSV.dev'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -221,8 +294,9 @@ with st.sidebar:
 
 st.title("Tech Debt Copilot")
 st.caption(
-    "Ask about EOL dates, CVE risks, or paste your stack for a full audit. "
-    "Conversation history persists across sessions via MongoDB."
+    "AI agent that knows your full software lifecycle — "
+    "scans machines, repos, and answers EOL / CVE questions. "
+    "Memory persists across sessions via MongoDB."
 )
 
 # Render existing conversation
@@ -230,50 +304,67 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Resolve input -- either typed or from a persona button
-user_input = st.chat_input("Ask about your tech stack, e.g. 'When does Python 3.9 expire?'")
+# Follow-up quick-action buttons after last response
+if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
+    last_tools = st.session_state.get("last_tools", [])
+    followups  = []
+    if "scan_repository" in last_tools or "scan_local_stack" in last_tools:
+        followups = FOLLOWUP_AFTER_SCAN
+    elif "search_eol_data" in last_tools or "find_upcoming_eols" in last_tools:
+        followups = FOLLOWUP_AFTER_EOL
+
+    if followups:
+        st.markdown('<div class="followup-hint">Quick follow-ups:</div>', unsafe_allow_html=True)
+        cols = st.columns(len(followups))
+        for col, (btn_label, llm_prompt) in zip(cols, followups):
+            with col:
+                if st.button(btn_label, key=f"fu_{btn_label}", use_container_width=True):
+                    _set_prompt(llm_prompt, btn_label)
+
+# Resolve input
+user_input = st.chat_input("Ask anything — paste a GitHub URL, version question, or 'scan my machine'")
 if user_input is None and st.session_state.quick_prompt:
     user_input = st.session_state.quick_prompt
     st.session_state.quick_prompt = None
 
-# If user typed a raw GitHub URL or local path, force repo scan routing
+# Auto-detect raw GitHub URL or path pasted into chat input
 if user_input:
     _stripped = user_input.strip()
-    _is_github = "github.com/" in _stripped
-    _is_path = (
-        _stripped.startswith(("C:\\", "D:\\", "/", "./", "~/")) or
-        (_stripped.startswith("http") and "github.com" in _stripped)
+    _is_repo  = (
+        ("github.com/" in _stripped and "scan_repository" not in _stripped) or
+        (_stripped.startswith(("C:\\", "D:\\", "/", "./", "~/")) and "scan_repository" not in _stripped)
     )
-    if (_is_github or _is_path) and "scan_repository" not in _stripped:
+    if _is_repo:
+        st.session_state.display_prompt = f"Scan repo: {_stripped}"
         user_input = f"Use the scan_repository tool on this target: {_stripped}"
 
 # Process user turn
 if user_input:
-    # Sanitize before anything else
     clean_input, error = sanitize_input(user_input)
     if error:
-        st.warning(f"(!)️ {error}")
+        st.warning(f" {error}")
         st.stop()
 
-    # Show user message immediately
-    st.session_state.messages.append({"role": "user", "content": clean_input})
-    with st.chat_message("user"):
-        st.markdown(clean_input)
-    user_input = clean_input
+    # Use display_prompt for the chat bubble, internal prompt for LLM
+    display_text = st.session_state.display_prompt or clean_input
+    st.session_state.display_prompt = None
 
-    # Run agent and stream response
+    st.session_state.messages.append({"role": "user", "content": display_text})
+    with st.chat_message("user"):
+        st.markdown(display_text)
+
     graph  = _get_graph()
     config = {"configurable": {"thread_id": st.session_state.thread_id}}
 
     with st.chat_message("assistant"):
-        status_box        = st.status("Thinking...", expanded=True)
-        response_holder   = st.empty()
-        full_response     = ""
-        tools_called      = []
+        status_box      = st.status("Working...", expanded=True)
+        response_holder = st.empty()
+        full_response   = ""
+        tools_called    = []
 
         try:
             for chunk in graph.stream(
-                {"messages": [HumanMessage(content=user_input)]},
+                {"messages": [HumanMessage(content=clean_input)]},
                 config=config,
                 stream_mode="values",
             ):
@@ -282,31 +373,43 @@ if user_input:
                     continue
                 last = msgs[-1]
 
-                # Show tool calls in the status box as they happen
                 if hasattr(last, "tool_calls") and last.tool_calls:
                     for tc in last.tool_calls:
                         name = tc.get("name", "tool")
                         args = tc.get("args", {})
                         if name not in tools_called:
                             tools_called.append(name)
-                            hint = args.get("product_name") or args.get("product") or args.get("query", "")[:40]
-                            status_box.write(f"🔍 `{name}` <- {hint}")
+                            if name == "scan_repository":
+                                repo = args.get("repo_url_or_path", "")
+                                label = repo.split("github.com/")[-1] if "github.com" in repo else repo[:50]
+                                status_box.write(f"Fetching dependency files from **{label}**...")
+                                status_box.write("Checking: requirements.txt, package.json, pyproject.toml, go.mod...")
+                            elif name == "scan_local_stack":
+                                status_box.write("Scanning installed packages: Python, pip, Node.js, npm...")
+                            elif name == "check_cve_vulnerabilities":
+                                p = args.get("product", ""); v = args.get("version", "")
+                                status_box.write(f"Querying OSV.dev CVEs for **{p} {v}**...")
+                            elif name == "find_upcoming_eols":
+                                d = args.get("days_ahead", 180)
+                                status_box.write(f"Scanning EOL database — next **{d} days**...")
+                            else:
+                                hint = args.get("product_name") or args.get("product") or args.get("query", "")[:40]
+                                status_box.write(f"`{name}` {hint}")
 
-                # Update the response as new AI content arrives
                 if isinstance(last, AIMessage) and isinstance(last.content, str) and last.content:
                     full_response = last.content
-                    response_holder.markdown(full_response + "|")
+                    response_holder.markdown(full_response + " |")
 
             response_holder.markdown(full_response)
             status_box.update(label="Done", state="complete", expanded=False)
+            st.session_state.last_tools = tools_called
 
         except Exception as exc:
-            full_response = f"(!)️ Agent error: {exc}\n\nCheck that `.env` is configured and the vector index is active."
+            full_response = f"Agent error: {exc}\n\nCheck `.env` is configured and the vector index is active."
             response_holder.error(full_response)
             status_box.update(label="Error", state="error", expanded=False)
 
-        # ElevenLabs TTS -- play response if voice is enabled
-        if st.session_state.get("tts_enabled") and full_response and "error" not in full_response.lower()[:20]:
+        if st.session_state.get("tts_enabled") and full_response and not full_response.startswith("Agent error"):
             with st.spinner("Generating audio..."):
                 audio_bytes = _tts(full_response)
             if audio_bytes:
