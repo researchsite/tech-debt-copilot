@@ -186,7 +186,7 @@ with st.sidebar:
     if st.button("Scan Repo", use_container_width=True, type="primary"):
         if repo_input.strip():
             st.session_state.quick_prompt = (
-                f"Scan this repository for EOL risks and tell me what needs attention: {repo_input.strip()}"
+                f"Use the scan_repository tool on this target: {repo_input.strip()}"
             )
             st.rerun()
         else:
@@ -235,6 +235,17 @@ user_input = st.chat_input("Ask about your tech stack, e.g. 'When does Python 3.
 if user_input is None and st.session_state.quick_prompt:
     user_input = st.session_state.quick_prompt
     st.session_state.quick_prompt = None
+
+# If user typed a raw GitHub URL or local path, force repo scan routing
+if user_input:
+    _stripped = user_input.strip()
+    _is_github = "github.com/" in _stripped
+    _is_path = (
+        _stripped.startswith(("C:\\", "D:\\", "/", "./", "~/")) or
+        (_stripped.startswith("http") and "github.com" in _stripped)
+    )
+    if (_is_github or _is_path) and "scan_repository" not in _stripped:
+        user_input = f"Use the scan_repository tool on this target: {_stripped}"
 
 # Process user turn
 if user_input:
