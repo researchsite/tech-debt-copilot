@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Environment — NEVER commit secrets
+.env
+
+# Generated data files (large, contains embeddings)
+full_enterprise_memory_bank.json
+data/
+
+# Hackathon prep notes (personal, not part of the submission)
+_hackathon_prep/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
