@@ -227,27 +227,36 @@ h3 {
     color: var(--muted) !important; line-height: 1.4 !important;
 }
 
-/* ── Buttons ── */
-.stButton > button {
+/* ── Buttons — all variants ── */
+.stButton > button,
+[data-testid="baseButton-secondary"],
+[data-testid="baseButton-tertiary"] {
     background: var(--panel2) !important; color: var(--ink2) !important;
     font: 700 0.75rem Inter, sans-serif !important;
     letter-spacing: 0.03em !important;
     border: 1px solid var(--line2) !important; border-radius: 7px !important;
     padding: 0.62rem 1rem !important; height: auto !important;
     transition: all 0.15s ease !important; box-shadow: none !important;
-    width: 100% !important;
 }
-.stButton > button:hover {
+.stButton > button:hover,
+[data-testid="baseButton-secondary"]:hover,
+[data-testid="baseButton-tertiary"]:hover {
     background: rgba(79,217,223,0.12) !important; color: var(--cyan2) !important;
-    border-color: rgba(79,217,223,0.45) !important; box-shadow: 0 0 16px rgba(79,217,223,0.08) !important;
+    border-color: rgba(79,217,223,0.45) !important;
+    box-shadow: 0 0 16px rgba(79,217,223,0.08) !important;
 }
+/* Primary button — cyan filled */
+[data-testid="baseButton-primary"],
 .stButton > button[kind="primary"] {
     background: var(--cyan) !important; color: #032228 !important;
-    border-color: var(--cyan) !important; font-weight: 800 !important;
-    box-shadow: 0 0 20px rgba(79,217,223,0.25) !important;
+    border: 1px solid var(--cyan) !important; font-weight: 800 !important;
+    font-size: 0.78rem !important; letter-spacing: 0.02em !important;
+    box-shadow: 0 0 22px rgba(79,217,223,0.28) !important;
 }
+[data-testid="baseButton-primary"]:hover,
 .stButton > button[kind="primary"]:hover {
-    background: var(--cyan2) !important; box-shadow: 0 0 28px rgba(79,217,223,0.4) !important;
+    background: var(--cyan2) !important; border-color: var(--cyan2) !important;
+    box-shadow: 0 0 30px rgba(79,217,223,0.45) !important;
 }
 
 /* ── Chat messages ── */
