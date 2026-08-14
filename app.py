@@ -149,92 +149,120 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-    --bg:     #07111d;
-    --panel:  #0e1a29;
-    --line:   #27374a;
-    --ink:    #e8eef7;
-    --muted:  #8e9cae;
-    --cyan:   #61dce0;
-    --green:  #65da99;
-    --yellow: #f7c965;
-    --red:    #ff746f;
+    --bg:       #07111d;
+    --panel:    #0d1b2a;
+    --panel2:   #112031;
+    --line:     #1e3347;
+    --line2:    #2a4560;
+    --ink:      #eaf0f8;
+    --ink2:     #c4d3e0;
+    --muted:    #6b84a0;
+    --muted2:   #4a6480;
+    --cyan:     #4fd9df;
+    --cyan2:    #9aedf0;
+    --green:    #4ecb87;
+    --yellow:   #f5c842;
+    --orange:   #f08040;
+    --red:      #f05a5a;
+    --red2:     #ff9090;
 }
 
-/* ── Background ── */
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { font-size: 16px; }
+
+/* ── App background ── */
 .stApp {
-    background: radial-gradient(circle at 12% 0, #163049 0, #07111d 38%, #06101a 100%) fixed !important;
-    font-family: Manrope, sans-serif !important;
+    background: var(--bg) !important;
+    background-image:
+        radial-gradient(ellipse 80% 60% at 15% -10%, rgba(79,217,223,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 85% 110%, rgba(78,203,135,0.05) 0%, transparent 55%) !important;
+    font-family: Inter, system-ui, sans-serif !important;
 }
-[data-testid="stAppViewContainer"] > .main, .block-container { background: transparent !important; }
+[data-testid="stAppViewContainer"] > .main { background: transparent !important; }
+.block-container {
+    background: transparent !important;
+    max-width: 1100px !important;
+    padding: 2rem 2.5rem 4rem !important;
+}
 
 /* ── Sidebar ── */
 section[data-testid="stSidebar"] {
     background: var(--panel) !important;
     border-right: 1px solid var(--line) !important;
-    box-shadow: none !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3) !important;
 }
 section[data-testid="stSidebar"] > div:first-child { background: transparent !important; }
+section[data-testid="stSidebar"] .block-container { padding: 1.5rem 1.2rem !important; }
 
 /* ── Top bar ── */
-[data-testid="stHeader"] {
-    background: var(--bg) !important;
-    border-bottom: 1px solid var(--line) !important;
-}
+[data-testid="stHeader"] { background: var(--bg) !important; border-bottom: 1px solid var(--line) !important; }
 
-/* ── Typography ── */
-* { font-family: Manrope, sans-serif; }
+/* ── Body text ── */
+* { font-family: Inter, system-ui, sans-serif; }
+p, li, span { font-size: 0.95rem !important; line-height: 1.65 !important; color: var(--ink2); }
+.stMarkdown p { font-size: 0.95rem !important; line-height: 1.68 !important; color: var(--ink2) !important; }
+
+/* ── Headings ── */
 h1 {
-    font-size: 2.1rem !important; font-weight: 800 !important;
-    letter-spacing: -0.06em !important; color: var(--ink) !important;
-    margin: 0.2rem 0 !important;
+    font-size: 2.6rem !important; font-weight: 900 !important;
+    letter-spacing: -0.04em !important; color: var(--ink) !important;
+    line-height: 1.1 !important; margin: 0.3rem 0 0.5rem !important;
 }
 h2 {
-    font: 800 0.78rem Manrope, sans-serif !important;
-    letter-spacing: 0.09em !important; text-transform: uppercase !important;
-    color: var(--ink) !important; margin: 1.8rem 0 0.6rem !important;
+    font-size: 1.05rem !important; font-weight: 800 !important;
+    letter-spacing: -0.01em !important; color: var(--ink) !important;
+    margin: 2rem 0 0.7rem !important;
 }
-h3 { font-weight: 700 !important; color: var(--ink) !important; }
+h3 {
+    font-size: 0.92rem !important; font-weight: 700 !important;
+    color: var(--ink) !important; margin: 1rem 0 0.4rem !important;
+}
 .stCaption, [data-testid="stCaptionContainer"] p {
-    font: 500 0.62rem 'DM Mono', monospace !important;
-    letter-spacing: 0.10em !important; text-transform: uppercase !important;
-    color: var(--muted) !important;
+    font: 500 0.70rem 'DM Mono', monospace !important;
+    letter-spacing: 0.08em !important; text-transform: uppercase !important;
+    color: var(--muted) !important; line-height: 1.4 !important;
 }
 
 /* ── Buttons ── */
 .stButton > button {
-    background: #192b3c !important; color: #cbe0e8 !important;
-    font: 800 0.64rem Manrope, sans-serif !important;
-    letter-spacing: 0.05em !important; text-transform: uppercase !important;
-    border: 1px solid var(--line) !important; border-radius: 5px !important;
-    padding: 0.62rem 0.85rem !important;
-    transition: background 0.15s, color 0.15s, border-color 0.15s !important;
-    box-shadow: none !important;
+    background: var(--panel2) !important; color: var(--ink2) !important;
+    font: 700 0.75rem Inter, sans-serif !important;
+    letter-spacing: 0.03em !important;
+    border: 1px solid var(--line2) !important; border-radius: 7px !important;
+    padding: 0.62rem 1rem !important; height: auto !important;
+    transition: all 0.15s ease !important; box-shadow: none !important;
+    width: 100% !important;
 }
 .stButton > button:hover {
-    background: var(--cyan) !important; color: #04131c !important;
-    border-color: var(--cyan) !important; transform: none !important;
+    background: rgba(79,217,223,0.12) !important; color: var(--cyan2) !important;
+    border-color: rgba(79,217,223,0.45) !important; box-shadow: 0 0 16px rgba(79,217,223,0.08) !important;
 }
 .stButton > button[kind="primary"] {
-    background: var(--cyan) !important; color: #04131c !important;
+    background: var(--cyan) !important; color: #032228 !important;
     border-color: var(--cyan) !important; font-weight: 800 !important;
+    box-shadow: 0 0 20px rgba(79,217,223,0.25) !important;
 }
-.stButton > button[kind="primary"]:hover { background: #a1f4f5 !important; }
+.stButton > button[kind="primary"]:hover {
+    background: var(--cyan2) !important; box-shadow: 0 0 28px rgba(79,217,223,0.4) !important;
+}
 
 /* ── Chat messages ── */
 [data-testid="stChatMessage"] {
-    border-radius: 6px !important; margin: 0.42rem 0 !important;
-    padding: 0.68rem 0.85rem !important; font-size: 0.82rem !important;
-    line-height: 1.58 !important;
+    border-radius: 10px !important; margin: 0.6rem 0 !important;
+    padding: 1rem 1.2rem !important; font-size: 0.95rem !important;
+    line-height: 1.68 !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-    background: #17384c !important; border: none !important;
+    background: #12283d !important; border: 1px solid #1b3a52 !important;
 }
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
-    background: #152030 !important; border: 1px solid #293a4d !important;
+    background: #0d1e2e !important; border: 1px solid var(--line) !important;
 }
+[data-testid="stChatMessage"] p { font-size: 0.95rem !important; }
 
 /* ── Chat input ── */
 [data-testid="stChatInput"] {
@@ -245,186 +273,226 @@ h3 { font-weight: 700 !important; color: var(--ink) !important; }
 }
 [data-testid="stChatInput"] textarea {
     background: transparent !important; color: var(--ink) !important;
-    font: 400 0.85rem Manrope !important;
+    font: 400 0.95rem Inter, sans-serif !important;
 }
-[data-testid="stChatInput"] textarea::placeholder { color: var(--muted) !important; }
+[data-testid="stChatInput"] textarea::placeholder { color: var(--muted) !important; font-size: 0.9rem !important; }
 
 /* ── Text input ── */
 .stTextInput > div > div {
-    background: #0a1825 !important; border: 1px solid var(--line) !important;
-    border-radius: 5px !important;
+    background: #081420 !important; border: 1px solid var(--line) !important;
+    border-radius: 7px !important; transition: border-color 0.15s !important;
 }
-.stTextInput input { background: transparent !important; color: var(--ink) !important; }
+.stTextInput input { background: transparent !important; color: var(--ink) !important; font-size: 0.88rem !important; }
 .stTextInput input::placeholder { color: var(--muted) !important; }
-.stTextInput > div > div:focus-within { border-color: var(--cyan) !important; }
+.stTextInput > div > div:focus-within { border-color: var(--cyan) !important; box-shadow: 0 0 0 2px rgba(79,217,223,0.12) !important; }
+
+/* ── Toggle ── */
+[data-testid="stToggle"] label { font-size: 0.82rem !important; color: var(--ink2) !important; }
 
 /* ── Status widget ── */
 [data-testid="stStatusWidget"] {
     background: var(--panel) !important; border: 1px solid var(--line) !important;
-    border-radius: 7px !important;
+    border-radius: 10px !important; font-size: 0.88rem !important;
 }
-[data-testid="stStatusWidget"][data-state="complete"] { border-color: rgba(101,218,153,0.4) !important; }
-[data-testid="stStatusWidget"][data-state="error"]    { border-color: rgba(255,116,111,0.4) !important; }
+[data-testid="stStatusWidget"][data-state="complete"] { border-color: rgba(78,203,135,0.5) !important; }
+[data-testid="stStatusWidget"][data-state="error"]    { border-color: rgba(240,90,90,0.5) !important; }
 
-/* ── Expander (stack rows) ── */
+/* ── Expander ── */
 [data-testid="stExpander"] {
-    background: rgba(15,28,43,0.76) !important;
-    border: 1px solid var(--line) !important; border-radius: 7px !important;
-    margin: 0.35rem 0 !important;
+    background: var(--panel) !important;
+    border: 1px solid var(--line) !important; border-radius: 10px !important;
+    margin: 0.4rem 0 !important; overflow: hidden !important;
 }
 [data-testid="stExpander"] summary {
-    font-size: 0.78rem !important; color: var(--ink) !important;
-    font-weight: 600 !important;
+    font-size: 0.88rem !important; font-weight: 600 !important;
+    color: var(--ink) !important; padding: 0.7rem 1rem !important;
+    letter-spacing: -0.01em !important;
 }
+[data-testid="stExpander"] summary:hover { background: rgba(255,255,255,0.03) !important; }
+[data-testid="stExpander"] > div > div { padding: 0.5rem 1rem 0.9rem !important; }
 
 /* ── Dividers ── */
-hr { border-color: var(--line) !important; margin: 0.65rem 0 !important; }
+hr { border-color: var(--line) !important; margin: 0.8rem 0 !important; opacity: 0.7 !important; }
 
 /* ── Markdown ── */
 .stMarkdown strong { color: var(--ink) !important; font-weight: 700 !important; }
 .stMarkdown code {
-    background: #0a1320 !important; color: #9beff0 !important;
-    font: 0.72rem 'DM Mono', monospace !important;
-    padding: 0.1rem 0.28rem !important; border-radius: 3px !important;
+    background: rgba(79,217,223,0.08) !important; color: var(--cyan2) !important;
+    font: 0.82rem 'DM Mono', monospace !important;
+    padding: 0.12rem 0.35rem !important; border-radius: 4px !important;
+    border: 1px solid rgba(79,217,223,0.15) !important;
 }
 .stMarkdown pre {
-    background: #07111d !important; border: 1px solid var(--line) !important;
-    border-radius: 5px !important; padding: 0.8rem !important;
+    background: #060f18 !important; border: 1px solid var(--line) !important;
+    border-radius: 8px !important; padding: 1rem !important;
 }
+.stMarkdown pre code { background: transparent !important; border: none !important; }
 .stMarkdown blockquote {
     border-left: 3px solid var(--cyan) !important;
-    background: rgba(97,220,224,0.06) !important;
-    border-radius: 0 5px 5px 0 !important;
-    padding: 0.5rem 0.9rem !important; margin: 0.4rem 0 !important;
-    color: #b9c5d4 !important;
+    background: rgba(79,217,223,0.05) !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding: 0.7rem 1.1rem !important; margin: 0.6rem 0 !important;
+    color: var(--ink2) !important; font-size: 0.93rem !important;
 }
+.stMarkdown ul, .stMarkdown ol { padding-left: 1.4rem !important; }
+.stMarkdown li { margin: 0.25rem 0 !important; font-size: 0.93rem !important; }
 
 /* ── Alert ── */
 [data-testid="stAlert"] {
-    background: rgba(247,201,101,0.07) !important;
-    border: 1px solid rgba(247,201,101,0.28) !important;
-    border-radius: 5px !important;
+    background: rgba(245,200,66,0.06) !important;
+    border: 1px solid rgba(245,200,66,0.25) !important;
+    border-radius: 8px !important; font-size: 0.88rem !important;
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #3d5470; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3d5c7a; }
 
-/* ── Custom dashboard HTML classes ── */
+/* ══════════════════════════════════════════════
+   Dashboard custom HTML components
+══════════════════════════════════════════════ */
+
 .kicker {
-    font: 500 0.63rem 'DM Mono', monospace;
-    letter-spacing: 0.10em; text-transform: uppercase; color: var(--cyan);
-    display: block; margin-bottom: 4px;
+    font: 600 0.68rem 'DM Mono', monospace;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan);
+    display: block; margin-bottom: 6px;
 }
+
+/* Metric cards */
 .metrics-grid {
     display: grid; grid-template-columns: repeat(5, 1fr);
-    gap: 0.65rem; margin: 0.8rem 0 1.6rem;
+    gap: 0.75rem; margin: 1rem 0 2rem;
 }
 .metric-card {
-    border: 1px solid var(--line); border-radius: 8px;
-    background: linear-gradient(130deg, #112033, #0d1724);
-    padding: 1rem; min-height: 100px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: linear-gradient(145deg, #0f2236 0%, #0b1a27 100%);
+    padding: 1.25rem 1.1rem 1rem; position: relative; overflow: hidden;
 }
+.metric-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--line2); border-radius: 12px 12px 0 0;
+}
+.metric-card.bad::before  { background: linear-gradient(90deg, var(--red), transparent); }
+.metric-card.warn::before { background: linear-gradient(90deg, var(--yellow), transparent); }
+.metric-card.good::before { background: linear-gradient(90deg, var(--green), transparent); }
 .metric-card label {
-    font: 500 0.60rem 'DM Mono', monospace; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--muted); display: block;
+    font: 600 0.65rem 'DM Mono', monospace; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.5rem;
 }
 .metric-card strong {
-    display: block; font-size: 1.8rem; font-weight: 800;
-    letter-spacing: -0.08em; margin: 0.25rem 0 0.15rem; color: var(--ink);
+    display: block; font: 800 2.4rem Inter, sans-serif;
+    letter-spacing: -0.06em; margin: 0 0 0.3rem; color: var(--ink); line-height: 1;
 }
 .metric-card em {
     font-style: normal; color: var(--muted);
-    font: 400 0.68rem 'DM Mono', monospace; letter-spacing: 0.04em;
+    font: 400 0.72rem 'DM Mono', monospace; letter-spacing: 0.03em;
 }
 .metric-card.bad  strong { color: var(--red); }
 .metric-card.warn strong { color: var(--yellow); }
 .metric-card.good strong { color: var(--green); }
 
-.stack-head {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr 1.1fr 0.65fr 1.1fr 0.6fr;
-    gap: 1rem; padding: 0 0.9rem 0.5rem;
-    font: 500 0.60rem 'DM Mono', monospace;
-    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
-    border-bottom: 1px solid var(--line); margin-bottom: 0.4rem;
-}
-.stack-row {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr 1.1fr 0.65fr 1.1fr 0.6fr;
-    gap: 1rem; padding: 0.78rem 0.9rem;
-    border: 1px solid var(--line); border-radius: 7px;
-    background: rgba(15,28,43,0.76); margin: 0.32rem 0;
-    font-size: 0.76rem; align-items: center; cursor: default;
-}
-.prod-name  { font-weight: 700; font-size: 0.88rem; }
-.prod-sub   { font: 400 0.62rem 'DM Mono', monospace; color: var(--muted); margin-top: 2px; }
-.badge {
-    display: inline-block; padding: 0.18rem 0.38rem; border-radius: 3px;
-    font: 700 0.60rem 'DM Mono', monospace; letter-spacing: 0.03em; text-transform: uppercase;
-}
-.badge.unsupported { color: #ffaaa5; background: #48272d; }
-.badge.soon        { color: #ffe18c; background: #483c25; }
-.badge.healthy     { color: #93eebd; background: #183b2e; }
-.badge.unknown     { color: #b3c0cf; background: #273545; }
-.risk-red          { color: var(--red); font-weight: 700; }
-.risk-yellow       { color: var(--yellow); font-weight: 700; }
-.risk-green        { color: var(--green); font-weight: 700; }
-.risk-muted        { color: var(--muted); }
-.window-text       { font: 400 0.65rem 'DM Mono', monospace; color: var(--muted); }
-
+/* Section headers */
 .section-head {
-    font: 800 0.78rem Manrope, sans-serif; letter-spacing: 0.09em;
+    font: 800 0.85rem Inter, sans-serif; letter-spacing: 0.04em;
     text-transform: uppercase; color: var(--ink);
     display: flex; justify-content: space-between; align-items: center;
-    margin: 2rem 0 0.7rem; padding-bottom: 0.5rem;
+    margin: 2.2rem 0 0.9rem; padding-bottom: 0.6rem;
     border-bottom: 1px solid var(--line);
 }
 .section-sub {
-    font: 400 0.62rem 'DM Mono', monospace; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--muted); font-weight: 400;
+    font: 400 0.67rem 'DM Mono', monospace; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted);
 }
 
+/* Stack table column header */
+.stack-head {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1.1fr 0.65fr 1fr 0.65fr;
+    gap: 1rem; padding: 0 1rem 0.6rem;
+    font: 600 0.65rem 'DM Mono', monospace;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--line); margin-bottom: 0.5rem;
+}
+
+/* Status badges */
+.badge {
+    display: inline-block; padding: 0.22rem 0.5rem; border-radius: 5px;
+    font: 700 0.65rem 'DM Mono', monospace; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.badge.unsupported { color: var(--red2); background: rgba(240,90,90,0.14); border: 1px solid rgba(240,90,90,0.25); }
+.badge.soon        { color: var(--yellow); background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.25); }
+.badge.healthy     { color: #7de8b0; background: rgba(78,203,135,0.12); border: 1px solid rgba(78,203,135,0.25); }
+.badge.unknown     { color: #8eabc5; background: rgba(100,140,175,0.12); border: 1px solid rgba(100,140,175,0.2); }
+
+/* Risk text colors */
+.risk-red    { color: var(--red); font-weight: 700; }
+.risk-yellow { color: var(--yellow); font-weight: 700; }
+.risk-green  { color: var(--green); font-weight: 700; }
+.risk-muted  { color: var(--muted); }
+
+/* Chat section header bar */
 .chat-top {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0.75rem 1rem; border-bottom: 1px solid var(--line);
-    font: 500 0.62rem 'DM Mono', monospace; letter-spacing: 0.08em;
-    text-transform: uppercase; background: var(--panel); border-radius: 8px 8px 0 0;
-    color: var(--muted);
+    padding: 0.85rem 1.1rem; border-bottom: 1px solid var(--line);
+    font: 600 0.67rem 'DM Mono', monospace; letter-spacing: 0.08em;
+    text-transform: uppercase; background: var(--panel); border-radius: 10px 10px 0 0;
+    color: var(--muted); margin-top: 1.5rem;
 }
-.chat-top b { color: var(--green); font-weight: 500; }
+.chat-top b { color: var(--green); font-weight: 600; }
+
+/* Active tools bar */
 .tools-bar {
-    padding: 0.55rem 0.9rem; border-radius: 4px;
-    background: #091320; color: #8392a5;
-    font: 400 0.60rem 'DM Mono', monospace; letter-spacing: 0.04em;
-    margin-bottom: 0.5rem;
+    padding: 0.55rem 1rem; border-radius: 0 0 6px 6px;
+    background: #060f17; color: #5a7a96;
+    font: 400 0.66rem 'DM Mono', monospace; letter-spacing: 0.04em;
+    margin-bottom: 0.6rem; border: 1px solid var(--line); border-top: none;
 }
 
+/* Sidebar step labels */
 .demo-step-label {
-    font: 500 0.58rem 'DM Mono', monospace; letter-spacing: 0.13em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 5px; margin-top: 3px;
+    font: 700 0.68rem 'DM Mono', monospace; letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--muted); margin: 0.5rem 0 0.5rem;
+    display: flex; align-items: center; gap: 6px;
 }
+.demo-step-label::before {
+    content: ''; display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--cyan); flex-shrink: 0;
+}
+
+/* Repo hint tag */
 .repo-badge {
-    display: inline-block; font: 500 0.57rem 'DM Mono', monospace;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    padding: 2px 7px; border-radius: 3px;
-    background: rgba(97,220,224,0.08); border: 1px solid rgba(97,220,224,0.20);
-    color: var(--cyan); margin-bottom: 4px;
+    display: inline-block; font: 500 0.63rem 'DM Mono', monospace;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px;
+    background: rgba(79,217,223,0.07); border: 1px solid rgba(79,217,223,0.18);
+    color: var(--cyan); margin-bottom: 5px;
 }
+
+/* Follow-up hint label */
 .followup-hint {
-    font: 500 0.56rem 'DM Mono', monospace; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 5px; margin-top: 12px;
+    font: 600 0.65rem 'DM Mono', monospace; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 1rem 0 0.5rem; padding-top: 0.5rem;
+    border-top: 1px solid var(--line);
 }
+
+/* Sponsor footer */
 .sponsor-strip {
-    font: 500 0.56rem 'DM Mono', monospace; letter-spacing: 0.08em;
-    text-transform: uppercase; color: #3e5468; text-align: center;
-    margin-top: 0.5rem; line-height: 2.1;
+    font: 500 0.62rem 'DM Mono', monospace; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--muted2); text-align: center;
+    margin-top: 0.8rem; line-height: 2.2;
 }
-.scan-status-dot {
-    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green); box-shadow: 0 0 8px var(--green); margin-right: 5px;
+
+/* Sidebar app title */
+.sidebar-title {
+    font: 800 1.15rem Inter, sans-serif; letter-spacing: -0.03em;
+    color: var(--ink); margin-bottom: 1px;
+}
+.sidebar-sub {
+    font: 500 0.65rem 'DM Mono', monospace; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--muted);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -573,9 +641,9 @@ def render_dashboard(data: dict):
 
     if not records:
         st.markdown(
-            '<p style="color:var(--muted);font-size:.82rem;padding:.8rem;'
-            'border:1px dashed var(--line);border-radius:6px">'
-            'No trackable packages found.</p>',
+            '<p style="color:var(--muted);font-size:.9rem;padding:1rem 1.2rem;'
+            'border:1px dashed var(--line2);border-radius:8px;line-height:1.6">'
+            'No trackable packages found in dependency files.</p>',
             unsafe_allow_html=True,
         )
         return
@@ -634,9 +702,8 @@ def render_dashboard(data: dict):
 
 with st.sidebar:
     st.markdown(
-        '<span class="kicker" style="display:block;margin-bottom:2px">Tech Debt Copilot</span>'
-        '<span style="font:500 .58rem \'DM Mono\',monospace;letter-spacing:.08em;'
-        'text-transform:uppercase;color:#8e9cae">Powered by MongoDB Atlas</span>',
+        '<div class="sidebar-title">Tech Debt Copilot</div>'
+        '<div class="sidebar-sub">MongoDB Atlas · Persistent Context</div>',
         unsafe_allow_html=True,
     )
 
@@ -724,11 +791,12 @@ with st.sidebar:
 # ── Main area ──────────────────────────────────────────────────────────────────
 
 # Header
-st.markdown('<span class="kicker">MongoDB Atlas · Persistent Context</span>', unsafe_allow_html=True)
+st.markdown('<span class="kicker">MongoDB BuildFest SF &nbsp;·&nbsp; Persistent Context Sprint</span>', unsafe_allow_html=True)
 st.title("Tech Debt Copilot")
 st.markdown(
-    '<p style="color:#8e9cae;font-size:.90rem;margin:0 0 1rem">'
-    'Persistent lifecycle intelligence for your software stack.</p>',
+    '<p style="color:var(--muted);font-size:1.02rem;margin:0.1rem 0 1.5rem;line-height:1.5;font-weight:400">'
+    'Know your EOL risk before it becomes a CVE. '
+    'Persistent lifecycle intelligence powered by MongoDB Atlas.</p>',
     unsafe_allow_html=True,
 )
 
