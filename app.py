@@ -245,18 +245,18 @@ h3 {
     border-color: rgba(79,217,223,0.45) !important;
     box-shadow: 0 0 16px rgba(79,217,223,0.08) !important;
 }
-/* Primary button — cyan filled */
+/* Primary button — orange filled */
 [data-testid="baseButton-primary"],
 .stButton > button[kind="primary"] {
-    background: var(--cyan) !important; color: #032228 !important;
-    border: 1px solid var(--cyan) !important; font-weight: 800 !important;
+    background: #f07235 !important; color: #160800 !important;
+    border: 1px solid #f07235 !important; font-weight: 800 !important;
     font-size: 0.78rem !important; letter-spacing: 0.02em !important;
-    box-shadow: 0 0 22px rgba(79,217,223,0.28) !important;
+    box-shadow: 0 0 22px rgba(240,114,53,0.30) !important;
 }
 [data-testid="baseButton-primary"]:hover,
 .stButton > button[kind="primary"]:hover {
-    background: var(--cyan2) !important; border-color: var(--cyan2) !important;
-    box-shadow: 0 0 30px rgba(79,217,223,0.45) !important;
+    background: #f5935a !important; border-color: #f5935a !important;
+    box-shadow: 0 0 30px rgba(240,114,53,0.45) !important;
 }
 
 /* ── Chat messages ── */
@@ -716,16 +716,13 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.caption(f"Thread {st.session_state.thread_id[:10]}...")
-    with col2:
-        if st.button("New", help="Start a new conversation thread"):
-            st.session_state.thread_id   = str(uuid.uuid4())
-            st.session_state.messages    = []
-            st.session_state.last_tools  = []
-            st.session_state.dashboard   = None
-            st.rerun()
+    st.caption(f"Thread · {st.session_state.thread_id[:12]}...")
+    if st.button("New Conversation", use_container_width=True, help="Start a new thread"):
+        st.session_state.thread_id   = str(uuid.uuid4())
+        st.session_state.messages    = []
+        st.session_state.last_tools  = []
+        st.session_state.dashboard   = None
+        st.rerun()
 
     st.divider()
 
@@ -799,7 +796,8 @@ with st.sidebar:
 
 # ── Main area ──────────────────────────────────────────────────────────────────
 
-# Header
+# Header — top spacer clears the Streamlit deploy toolbar
+st.markdown('<div style="height:2.8rem"></div>', unsafe_allow_html=True)
 st.markdown('<span class="kicker">MongoDB BuildFest SF &nbsp;·&nbsp; Persistent Context Sprint</span>', unsafe_allow_html=True)
 st.title("Tech Debt Copilot")
 st.markdown(
