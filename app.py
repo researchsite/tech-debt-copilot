@@ -76,18 +76,26 @@ def _classify(days: int | None) -> str:
     return "OK"
 
 
-def _eol_lookup(items: list[dict]) -> list[dict]:
+@st.cache_resource(show_spinner=False)
+def _get_mongo_client():
     from pymongo import MongoClient
+    return MongoClient(MONGO_URI, serverSelectionTimeoutMS=8000, connectTimeoutMS=8000)
+
+
+def _eol_lookup(items: list[dict]) -> list[dict]:
     today  = datetime.now(UTC).date()
-    client = MongoClient(MONGO_URI)
+    client = _get_mongo_client()
     coll   = client[MONGO_DB][MONGO_COL]
     records = []
     for item in items:
-        doc = coll.find_one(
-            {"product_name": item["eol_product"], "cycle": item["cycle"]},
-            {"eol": 1, "eol_display": 1, "extended_support": 1,
-             "product_label": 1, "lts": 1, "support": 1, "_id": 0},
-        )
+        try:
+            doc = coll.find_one(
+                {"product_name": item["eol_product"], "cycle": item["cycle"]},
+                {"eol": 1, "eol_display": 1, "extended_support": 1,
+                 "product_label": 1, "lts": 1, "support": 1, "_id": 0},
+            )
+        except Exception:
+            doc = None
         eol_str = doc.get("eol") if doc else None
         days    = None
         if eol_str:
@@ -110,7 +118,6 @@ def _eol_lookup(items: list[dict]) -> list[dict]:
             "status":           _classify(days),
             "lts":              doc.get("lts", False) if doc else False,
         })
-    client.close()
     records.sort(key=lambda r: STATUS_RANK.get(r["status"], 9))
     return records
 
