@@ -616,10 +616,17 @@ def render_dashboard(data: dict):
                 st.caption("Extended Support")
                 st.markdown(f"**{ext}**")
             st.caption("Details")
+            d = r.get("days")
+            if d is None:
+                window_detail = "unknown"
+            elif d < 0:
+                window_detail = "past end-of-life"
+            else:
+                window_detail = f"{d}d remaining"
             st.markdown(
                 f"Detected via `{r['source']}`. "
                 f"Risk classification: **{r['status']}** "
-                f"({'past end-of-life' if r['days'] and r['days'] < 0 else f\"{r.get('days','?')}d remaining\" if r.get('days') is not None else 'unknown'}){lts}."
+                f"({window_detail}){lts}."
             )
 
 
