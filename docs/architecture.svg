@@ -1,0 +1,210 @@
+<svg viewBox="0 0 960 620" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07111d"/>
+      <stop offset="100%" stop-color="#0d1b2a"/>
+    </linearGradient>
+    <linearGradient id="mongoGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a3a1a"/>
+      <stop offset="100%" stop-color="#0d2a1a"/>
+    </linearGradient>
+    <linearGradient id="agentGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a2a3a"/>
+      <stop offset="100%" stop-color="#0d1f33"/>
+    </linearGradient>
+    <linearGradient id="uiGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a2040"/>
+      <stop offset="100%" stop-color="#0d1530"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4fd9df"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4ecb87"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#f07235"/>
+    </marker>
+    <marker id="arrow-muted" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#6b84a0"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="620" fill="url(#bgGrad)" rx="12"/>
+
+  <!-- Title -->
+  <text x="480" y="38" text-anchor="middle" fill="#eaf0f8" font-size="17" font-weight="800" letter-spacing="-0.5">Tech Debt Copilot — System Architecture</text>
+  <text x="480" y="58" text-anchor="middle" fill="#6b84a0" font-size="11" font-family="'DM Mono', monospace" letter-spacing="1">MongoDB BuildFest SF 2026</text>
+
+  <!-- ══ USER LAYER ══ -->
+  <rect x="30" y="80" width="180" height="480" rx="10" fill="#0a1825" stroke="#1e3347" stroke-width="1"/>
+  <text x="120" y="102" text-anchor="middle" fill="#4fd9df" font-size="9" font-weight="700" letter-spacing="1.5" font-family="'DM Mono', monospace">USER LAYER</text>
+
+  <!-- Browser box -->
+  <rect x="45" y="112" width="150" height="80" rx="8" fill="url(#uiGrad)" stroke="#2a4560" stroke-width="1"/>
+  <text x="120" y="130" text-anchor="middle" fill="#eaf0f8" font-size="11" font-weight="700">Streamlit UI</text>
+  <text x="120" y="147" text-anchor="middle" fill="#6b84a0" font-size="9">app.py</text>
+  <line x1="65" y1="157" x2="175" y2="157" stroke="#1e3347" stroke-width="0.5"/>
+  <text x="120" y="170" text-anchor="middle" fill="#8eabc5" font-size="8.5">Dashboard · Chat · Sidebar</text>
+  <text x="120" y="182" text-anchor="middle" fill="#8eabc5" font-size="8.5">Session State · TTS</text>
+
+  <!-- Personas -->
+  <rect x="45" y="205" width="150" height="100" rx="8" fill="#0d1b2a" stroke="#1e3347" stroke-width="1"/>
+  <text x="120" y="222" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">Personas</text>
+  <text x="55" y="240" fill="#8eabc5" font-size="8.5">⚙  DevOps Engineer</text>
+  <text x="55" y="256" fill="#8eabc5" font-size="8.5">🔒  Security Team</text>
+  <text x="55" y="272" fill="#8eabc5" font-size="8.5">📋  IT Asset Manager</text>
+  <text x="55" y="288" fill="#8eabc5" font-size="8.5">⚛  Frontend / Mobile Dev</text>
+  <text x="55" y="304" fill="#8eabc5" font-size="8.5">🎤  Voice (ElevenLabs TTS)</text>
+
+  <!-- Input modes -->
+  <rect x="45" y="318" width="150" height="100" rx="8" fill="#0d1b2a" stroke="#1e3347" stroke-width="1"/>
+  <text x="120" y="335" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">Input Modes</text>
+  <text x="55" y="353" fill="#8eabc5" font-size="8.5">💬  Natural language chat</text>
+  <text x="55" y="369" fill="#8eabc5" font-size="8.5">🖥  Local machine scan</text>
+  <text x="55" y="385" fill="#8eabc5" font-size="8.5">🔗  GitHub URL scan</text>
+  <text x="55" y="401" fill="#8eabc5" font-size="8.5">📄  Paste pip list output</text>
+  <text x="55" y="417" fill="#8eabc5" font-size="8.5">📁  Local folder scan</text>
+
+  <!-- Thread info -->
+  <rect x="45" y="430" width="150" height="50" rx="8" fill="#0d1b2a" stroke="#1e3347" stroke-width="1"/>
+  <text x="120" y="450" text-anchor="middle" fill="#4ecb87" font-size="9" font-weight="700">Thread Persistent</text>
+  <text x="120" y="467" text-anchor="middle" fill="#6b84a0" font-size="8">thread_id → Atlas checkpoint</text>
+
+  <!-- ══ AGENT LAYER ══ -->
+  <rect x="240" y="80" width="270" height="480" rx="10" fill="#0a1825" stroke="#1e3347" stroke-width="1"/>
+  <text x="375" y="102" text-anchor="middle" fill="#4fd9df" font-size="9" font-weight="700" letter-spacing="1.5" font-family="'DM Mono', monospace">LANGGRAPH AGENT</text>
+
+  <!-- LLM node -->
+  <rect x="255" y="112" width="240" height="72" rx="8" fill="url(#agentGrad)" stroke="#2a4560" stroke-width="1.5"/>
+  <text x="375" y="131" text-anchor="middle" fill="#eaf0f8" font-size="11" font-weight="800">LLM — Fireworks AI</text>
+  <text x="375" y="148" text-anchor="middle" fill="#4fd9df" font-size="9" font-family="'DM Mono', monospace">deepseek-v4-flash</text>
+  <line x1="275" y1="157" x2="475" y2="157" stroke="#1e3347" stroke-width="0.5"/>
+  <text x="375" y="170" text-anchor="middle" fill="#6b84a0" font-size="8.5">Tool routing · RULE 1-6 system prompt</text>
+  <text x="375" y="181" text-anchor="middle" fill="#6b84a0" font-size="8.5">Temperature=0 · Deterministic output</text>
+
+  <!-- 6 Tools -->
+  <text x="375" y="208" text-anchor="middle" fill="#8eabc5" font-size="9" font-weight="700" letter-spacing="0.5">6 TOOLS (tools.py)</text>
+
+  <!-- Tool boxes -->
+  <rect x="255" y="216" width="110" height="36" rx="6" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="310" y="230" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">scan_local_stack</text>
+  <text x="310" y="243" text-anchor="middle" fill="#6b84a0" font-size="7.5">Python · pip · Node · npm</text>
+
+  <rect x="375" y="216" width="120" height="36" rx="6" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="435" y="230" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">scan_repository</text>
+  <text x="435" y="243" text-anchor="middle" fill="#6b84a0" font-size="7.5">GitHub URL · local path</text>
+
+  <rect x="255" y="262" width="110" height="36" rx="6" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="310" y="276" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">search_eol_data</text>
+  <text x="310" y="289" text-anchor="middle" fill="#6b84a0" font-size="7.5">$vectorSearch · Voyage AI</text>
+
+  <rect x="375" y="262" width="120" height="36" rx="6" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="435" y="276" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">check_cve_vulns</text>
+  <text x="435" y="289" text-anchor="middle" fill="#6b84a0" font-size="7.5">OSV.dev REST API</text>
+
+  <rect x="255" y="308" width="110" height="36" rx="6" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="310" y="322" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">find_upcoming_eols</text>
+  <text x="310" y="335" text-anchor="middle" fill="#6b84a0" font-size="7.5">Atlas aggregation pipeline</text>
+
+  <rect x="375" y="308" width="120" height="36" rx="6" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="435" y="322" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">analyze_industry_trends</text>
+  <text x="435" y="335" text-anchor="middle" fill="#6b84a0" font-size="7.5">$group · $count · category</text>
+
+  <!-- graph.py / scanner.py -->
+  <rect x="255" y="360" width="240" height="55" rx="8" fill="#0d1b2a" stroke="#1e3347" stroke-width="1"/>
+  <text x="375" y="378" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">graph.py · scanner.py · repo_scanner.py</text>
+  <text x="375" y="393" text-anchor="middle" fill="#6b84a0" font-size="8.5">StateGraph → MessagesState → ToolNode</text>
+  <text x="375" y="406" text-anchor="middle" fill="#6b84a0" font-size="8.5">Dependency file parser (req.txt · package.json · go.mod)</text>
+
+  <!-- MongoDBSaver -->
+  <rect x="255" y="428" width="240" height="52" rx="8" fill="#112033" stroke="#4ecb87" stroke-width="1.5"/>
+  <text x="375" y="448" text-anchor="middle" fill="#4ecb87" font-size="10" font-weight="800">MongoDBSaver (LangGraph)</text>
+  <text x="375" y="463" text-anchor="middle" fill="#6b84a0" font-size="8.5">Checkpointer · Full MessagesState serialized</text>
+  <text x="375" y="476" text-anchor="middle" fill="#6b84a0" font-size="8.5">thread_id → resumes across server restarts</text>
+
+  <!-- ══ DATA LAYER ══ -->
+  <rect x="540" y="80" width="250" height="480" rx="10" fill="#0a1825" stroke="#1e3347" stroke-width="1"/>
+  <text x="665" y="102" text-anchor="middle" fill="#4fd9df" font-size="9" font-weight="700" letter-spacing="1.5" font-family="'DM Mono', monospace">DATA &amp; SERVICES LAYER</text>
+
+  <!-- Atlas -->
+  <rect x="555" y="112" width="220" height="175" rx="10" fill="url(#mongoGrad)" stroke="#4ecb87" stroke-width="1.5"/>
+  <text x="665" y="131" text-anchor="middle" fill="#4ecb87" font-size="12" font-weight="800">MongoDB Atlas</text>
+  <text x="665" y="147" text-anchor="middle" fill="#6b84a0" font-size="9">M0 Free Tier · Atlas Vector Search</text>
+  <line x1="575" y1="155" x2="755" y2="155" stroke="#1a3a1a" stroke-width="0.5"/>
+
+  <rect x="565" y="163" width="200" height="52" rx="6" fill="#0d2a1a" stroke="#1a3a1a" stroke-width="1"/>
+  <text x="665" y="179" text-anchor="middle" fill="#eaf0f8" font-size="9" font-weight="700">eol_lifecycle collection</text>
+  <text x="665" y="193" text-anchor="middle" fill="#6b84a0" font-size="8">8,322 product lifecycle records</text>
+  <text x="665" y="205" text-anchor="middle" fill="#6b84a0" font-size="8">Voyage AI embeddings · 1024-dim · cosine</text>
+
+  <rect x="565" y="224" width="200" height="40" rx="6" fill="#0d2a1a" stroke="#1a3a1a" stroke-width="1"/>
+  <text x="665" y="240" text-anchor="middle" fill="#eaf0f8" font-size="9" font-weight="700">checkpoints collection</text>
+  <text x="665" y="254" text-anchor="middle" fill="#6b84a0" font-size="8">LangGraph thread state · per thread_id</text>
+
+  <rect x="565" y="273" width="200" height="8" rx="4" fill="#1a3a1a"/>
+
+  <!-- Voyage AI -->
+  <rect x="555" y="302" width="220" height="62" rx="8" fill="#0f1e2a" stroke="#4fd9df" stroke-width="1"/>
+  <text x="665" y="320" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">Voyage AI</text>
+  <text x="665" y="336" text-anchor="middle" fill="#4fd9df" font-size="9" font-family="'DM Mono', monospace">voyage-3.5 · 1024-dim</text>
+  <text x="665" y="352" text-anchor="middle" fill="#6b84a0" font-size="8">input_type=document (index) · query (search)</text>
+
+  <!-- OSV.dev -->
+  <rect x="555" y="376" width="220" height="50" rx="8" fill="#0f1e2a" stroke="#f07235" stroke-width="1"/>
+  <text x="665" y="395" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">OSV.dev</text>
+  <text x="665" y="411" text-anchor="middle" fill="#6b84a0" font-size="8.5">Live CVE database · REST API · zero auth</text>
+
+  <!-- GitHub -->
+  <rect x="555" y="438" width="220" height="50" rx="8" fill="#0f1e2a" stroke="#8eabc5" stroke-width="1"/>
+  <text x="665" y="457" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">GitHub raw.githubusercontent.com</text>
+  <text x="665" y="473" text-anchor="middle" fill="#6b84a0" font-size="8.5">requirements.txt · package.json · go.mod · .nvmrc</text>
+
+  <!-- ElevenLabs -->
+  <rect x="555" y="500" width="220" height="42" rx="8" fill="#0f1e2a" stroke="#8eabc5" stroke-width="1"/>
+  <text x="665" y="518" text-anchor="middle" fill="#eaf0f8" font-size="10" font-weight="700">ElevenLabs TTS</text>
+  <text x="665" y="532" text-anchor="middle" fill="#6b84a0" font-size="8.5">Voice output · eleven_multilingual_v2</text>
+
+  <!-- ══ ARROWS ══ -->
+  <!-- User → Agent (chat) -->
+  <path d="M 210 152 L 240 152" stroke="#4fd9df" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="225" y="147" text-anchor="middle" fill="#4fd9df" font-size="7">chat</text>
+
+  <!-- User → Agent (scan) -->
+  <path d="M 210 250 L 240 210" stroke="#f07235" stroke-width="1.5" fill="none" marker-end="url(#arrow-orange)"/>
+  <text x="220" y="240" text-anchor="middle" fill="#f07235" font-size="7">scan</text>
+
+  <!-- Agent → Atlas (vector search) -->
+  <path d="M 495 276 L 540 220" stroke="#4fd9df" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="515" y="245" text-anchor="middle" fill="#4fd9df" font-size="7">$vectorSearch</text>
+
+  <!-- Agent → Atlas (checkpointer) -->
+  <path d="M 495 454 L 540 300" stroke="#4ecb87" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+  <text x="508" y="380" text-anchor="middle" fill="#4ecb87" font-size="7" transform="rotate(-55,508,380)">checkpoint</text>
+
+  <!-- Agent → OSV -->
+  <path d="M 495 292 L 540 398" stroke="#f07235" stroke-width="1.5" fill="none" marker-end="url(#arrow-orange)" stroke-dasharray="4,3"/>
+  <text x="530" y="345" text-anchor="middle" fill="#f07235" font-size="7">CVE API</text>
+
+  <!-- Agent → GitHub -->
+  <path d="M 495 330 L 540 458" stroke="#6b84a0" stroke-width="1.2" fill="none" marker-end="url(#arrow-muted)" stroke-dasharray="4,3"/>
+  <text x="520" y="400" text-anchor="middle" fill="#6b84a0" font-size="7">HTTP fetch</text>
+
+  <!-- Atlas → Voyage label -->
+  <line x1="665" y1="290" x2="665" y2="302" stroke="#4fd9df" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="700" y="298" fill="#4fd9df" font-size="7">embeddings</text>
+
+  <!-- ══ LEGEND ══ -->
+  <rect x="720" y="560" width="220" height="50" rx="6" fill="transparent"/>
+  <line x1="726" y1="572" x2="750" y2="572" stroke="#4fd9df" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="756" y="576" fill="#6b84a0" font-size="8">Data / query flow</text>
+  <line x1="726" y1="588" x2="750" y2="588" stroke="#4fd9df" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+  <text x="756" y="592" fill="#6b84a0" font-size="8">External API call</text>
+  <line x1="726" y1="604" x2="750" y2="604" stroke="#4ecb87" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="756" y="608" fill="#6b84a0" font-size="8">Persistence (MongoDBSaver)</text>
+</svg>

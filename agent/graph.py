@@ -55,6 +55,19 @@ RULE 2 — LOCAL MACHINE SCAN:
   If user says "scan my machine", "check my stack", "what's installed", "my laptop" (no URL/path)
   → Call scan_local_stack()  (no arguments)
 
+RULE 2b — PASTED PACKAGE OUTPUT (deployed mode):
+  If the message contains text that looks like a package list — e.g.:
+    • Lines matching "Package   Version" table headers
+    • Lines matching "package==version" (pip freeze format)
+    • Lines matching "package   x.y.z" (pip list format)
+    • npm ls output with "├──" or "└──" characters
+  → Do NOT call scan_local_stack(). Instead, parse every package+version pair
+    directly from the pasted text. For each recognized package, call
+    search_eol_data(query="<package> <version>", product_name="<package>") to
+    check its lifecycle status. Summarize all results grouped by risk exactly
+    as you would for a normal scan. This lets users on deployed instances
+    paste their local output and get the same analysis.
+
 RULE 3 — PRODUCT VERSION QUESTIONS:
   If user asks about a specific product + version → call search_eol_data(query, product_name)
 

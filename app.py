@@ -735,6 +735,25 @@ with st.sidebar:
 
     # Step 1
     st.markdown('<div class="demo-step-label">Step 1 — Scan this machine</div>', unsafe_allow_html=True)
+    with st.expander("Running on a server? Use paste mode"):
+        st.markdown(
+            '<p style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;line-height:1.6">'
+            'When deployed, the scanner reads the <em>server</em>, not your machine. '
+            'Run one of these commands locally and paste the output into the chat.</p>',
+            unsafe_allow_html=True,
+        )
+        st.code("pip list", language="bash")
+        st.caption("or")
+        st.code("pip freeze", language="bash")
+        st.caption("npm / Node")
+        st.code("npm list -g --depth=0", language="bash")
+        st.markdown(
+            '<p style="font-size:0.72rem;color:var(--muted2);margin-top:6px">'
+            'Paste the output directly into the chat box — the agent will recognise '
+            'the format and analyse every package automatically.</p>',
+            unsafe_allow_html=True,
+        )
+
     if st.button("[ Scan ] My Stack", use_container_width=True, type="primary"):
         with st.spinner("Scanning local machine..."):
             st.session_state.dashboard = run_local_scan()

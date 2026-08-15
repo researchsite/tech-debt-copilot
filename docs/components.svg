@@ -1,0 +1,228 @@
+<svg viewBox="0 0 1020 680" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07111d"/><stop offset="100%" stop-color="#0a1825"/>
+    </linearGradient>
+    <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#4fd9df"/>
+    </marker>
+    <marker id="ar2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#4ecb87"/>
+    </marker>
+    <marker id="ar3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#f07235"/>
+    </marker>
+    <marker id="ar4" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#8eabc5"/>
+    </marker>
+  </defs>
+
+  <rect width="1020" height="680" fill="url(#bg2)" rx="12"/>
+
+  <!-- Title -->
+  <text x="510" y="36" text-anchor="middle" fill="#eaf0f8" font-size="17" font-weight="800" letter-spacing="-0.5">Tech Debt Copilot — Component Diagram</text>
+  <text x="510" y="56" text-anchor="middle" fill="#6b84a0" font-size="10" font-family="'DM Mono', monospace" letter-spacing="1">Each file · its responsibilities · how they connect</text>
+
+  <!-- ══════════ app.py ══════════ -->
+  <rect x="30" y="78" width="240" height="300" rx="10" fill="#0d1b2a" stroke="#4fd9df" stroke-width="1.5"/>
+  <rect x="30" y="78" width="240" height="32" rx="10" fill="#0f2a40"/>
+  <rect x="30" y="98" width="240" height="12" fill="#0f2a40"/>
+  <text x="150" y="100" text-anchor="middle" fill="#4fd9df" font-size="12" font-weight="800">app.py</text>
+  <text x="150" y="116" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">Streamlit Application · Entry Point</text>
+
+  <text x="45" y="136" fill="#8eabc5" font-size="9" font-weight="700">RESPONSIBILITIES</text>
+  <text x="45" y="152" fill="#c4d3e0" font-size="8.5">▸ Page layout, CSS theming, dark design</text>
+  <text x="45" y="167" fill="#c4d3e0" font-size="8.5">▸ Session state (thread_id, messages, dashboard)</text>
+  <text x="45" y="182" fill="#c4d3e0" font-size="8.5">▸ Sidebar: 3-step demo flow + paste mode</text>
+  <text x="45" y="197" fill="#c4d3e0" font-size="8.5">▸ Dashboard: 5 metric cards + stack table</text>
+  <text x="45" y="212" fill="#c4d3e0" font-size="8.5">▸ Chat: stream LLM responses + follow-ups</text>
+  <text x="45" y="227" fill="#c4d3e0" font-size="8.5">▸ ElevenLabs TTS integration</text>
+  <text x="45" y="242" fill="#c4d3e0" font-size="8.5">▸ Input sanitization / injection guard</text>
+
+  <line x1="45" y1="252" x2="255" y2="252" stroke="#1e3347" stroke-width="0.5"/>
+  <text x="45" y="268" fill="#8eabc5" font-size="9" font-weight="700">KEY FUNCTIONS</text>
+  <text x="45" y="283" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">run_local_scan()  run_repo_scan()</text>
+  <text x="45" y="297" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">_eol_lookup()     _get_mongo_client()</text>
+  <text x="45" y="311" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">render_dashboard()  _tts()</text>
+  <text x="45" y="325" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">sanitize_input()    _set_prompt()</text>
+  <text x="45" y="345" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">@st.cache_resource → _get_graph()</text>
+  <text x="45" y="360" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">@st.cache_resource → _get_mongo_client()</text>
+
+  <!-- ══════════ agent/graph.py ══════════ -->
+  <rect x="310" y="78" width="240" height="230" rx="10" fill="#0d1b2a" stroke="#4fd9df" stroke-width="1.5"/>
+  <rect x="310" y="78" width="240" height="32" rx="10" fill="#0f2a40"/>
+  <rect x="310" y="98" width="240" height="12" fill="#0f2a40"/>
+  <text x="430" y="100" text-anchor="middle" fill="#4fd9df" font-size="12" font-weight="800">agent/graph.py</text>
+  <text x="430" y="116" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">LangGraph Agent · System Prompt</text>
+
+  <text x="325" y="136" fill="#8eabc5" font-size="9" font-weight="700">RESPONSIBILITIES</text>
+  <text x="325" y="152" fill="#c4d3e0" font-size="8.5">▸ Builds StateGraph with MessagesState</text>
+  <text x="325" y="167" fill="#c4d3e0" font-size="8.5">▸ System prompt: RULE 1-6 tool routing</text>
+  <text x="325" y="182" fill="#c4d3e0" font-size="8.5">▸ Binds 6 tools to deepseek-v4-flash</text>
+  <text x="325" y="197" fill="#c4d3e0" font-size="8.5">▸ MongoDBSaver checkpointer (persistence)</text>
+  <text x="325" y="212" fill="#c4d3e0" font-size="8.5">▸ Conditional edge: tools → agent → END</text>
+
+  <line x1="325" y1="222" x2="535" y2="222" stroke="#1e3347" stroke-width="0.5"/>
+  <text x="325" y="238" fill="#8eabc5" font-size="9" font-weight="700">KEY FUNCTIONS</text>
+  <text x="325" y="253" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">build_graph(checkpointer)</text>
+  <text x="325" y="267" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">get_checkpointer() → MongoDBSaver</text>
+  <text x="325" y="281" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">call_agent(state) · route(state)</text>
+  <text x="325" y="295" fill="#4ecb87" font-size="8" font-family="'DM Mono', monospace">SYSTEM_PROMPT: 250+ line routing rules</text>
+
+  <!-- ══════════ agent/tools.py ══════════ -->
+  <rect x="590" y="78" width="240" height="300" rx="10" fill="#0d1b2a" stroke="#4fd9df" stroke-width="1.5"/>
+  <rect x="590" y="78" width="240" height="32" rx="10" fill="#0f2a40"/>
+  <rect x="590" y="98" width="240" height="12" fill="#0f2a40"/>
+  <text x="710" y="100" text-anchor="middle" fill="#4fd9df" font-size="12" font-weight="800">agent/tools.py</text>
+  <text x="710" y="116" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">6 LangChain Tools · External Integrations</text>
+
+  <text x="605" y="136" fill="#8eabc5" font-size="9" font-weight="700">TOOLS</text>
+  <rect x="605" y="143" width="210" height="24" rx="4" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="710" y="158" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">scan_local_stack()</text>
+  <text x="605" y="178" fill="#6b84a0" font-size="7.5">  subprocess: pip list, pip freeze, node -v, npm ls</text>
+
+  <rect x="605" y="186" width="210" height="24" rx="4" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="710" y="201" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">scan_repository(repo_url_or_path)</text>
+  <text x="605" y="221" fill="#6b84a0" font-size="7.5">  → delegates to repo_scanner.scan_repo()</text>
+
+  <rect x="605" y="229" width="210" height="24" rx="4" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="710" y="244" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">search_eol_data(query, product_name?)</text>
+  <text x="605" y="264" fill="#6b84a0" font-size="7.5">  Atlas $vectorSearch + $eq pre-filter</text>
+
+  <rect x="605" y="272" width="210" height="24" rx="4" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="710" y="287" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">check_cve_vulnerabilities(product, ver)</text>
+  <text x="605" y="307" fill="#6b84a0" font-size="7.5">  OSV.dev POST /v1/query · live CVE data</text>
+
+  <rect x="605" y="315" width="210" height="24" rx="4" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="710" y="330" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">find_upcoming_eols(days_ahead, cat?)</text>
+  <text x="605" y="350" fill="#6b84a0" font-size="7.5">  Atlas aggregation: $match date range</text>
+
+  <rect x="605" y="358" width="210" height="24" rx="4" fill="#0f2236" stroke="#1e3347" stroke-width="1"/>
+  <text x="710" y="373" text-anchor="middle" fill="#4fd9df" font-size="8.5" font-weight="700">analyze_industry_trends(cat?, days?)</text>
+
+  <!-- ══════════ agent/scanner.py ══════════ -->
+  <rect x="310" y="332" width="240" height="195" rx="10" fill="#0d1b2a" stroke="#8eabc5" stroke-width="1.2"/>
+  <rect x="310" y="332" width="240" height="32" rx="10" fill="#1a2033"/>
+  <rect x="310" y="352" width="240" height="12" fill="#1a2033"/>
+  <text x="430" y="354" text-anchor="middle" fill="#c4d3e0" font-size="11" font-weight="800">agent/scanner.py</text>
+  <text x="430" y="370" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">Local Machine Package Detection</text>
+  <text x="325" y="390" fill="#c4d3e0" font-size="8.5">▸ scan_all() → detects installed software</text>
+  <text x="325" y="405" fill="#c4d3e0" font-size="8.5">▸ python_runtime: sys.version_info</text>
+  <text x="325" y="420" fill="#c4d3e0" font-size="8.5">▸ pip_packages: subprocess pip list</text>
+  <text x="325" y="435" fill="#c4d3e0" font-size="8.5">▸ node_runtime: node --version</text>
+  <text x="325" y="450" fill="#c4d3e0" font-size="8.5">▸ npm_packages: npm list --json</text>
+  <text x="325" y="468" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">Returns: [{package, version, eol_product, cycle}]</text>
+  <text x="325" y="482" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">EOL_MAP: 25 packages → (product, cycle_fn)</text>
+  <text x="325" y="496" fill="#f07235" font-size="8" font-family="'DM Mono', monospace">Note: scans host machine — use paste mode</text>
+  <text x="325" y="510" fill="#f07235" font-size="8" font-family="'DM Mono', monospace">when app is deployed remotely</text>
+
+  <!-- ══════════ agent/repo_scanner.py ══════════ -->
+  <rect x="590" y="400" width="240" height="220" rx="10" fill="#0d1b2a" stroke="#8eabc5" stroke-width="1.2"/>
+  <rect x="590" y="400" width="240" height="32" rx="10" fill="#1a2033"/>
+  <rect x="590" y="420" width="240" height="12" fill="#1a2033"/>
+  <text x="710" y="422" text-anchor="middle" fill="#c4d3e0" font-size="11" font-weight="800">agent/repo_scanner.py</text>
+  <text x="710" y="438" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">GitHub URL + Local Path Dep Parser</text>
+  <text x="605" y="458" fill="#c4d3e0" font-size="8.5">▸ scan_repo(source) → (items, meta)</text>
+  <text x="605" y="473" fill="#c4d3e0" font-size="8.5">▸ GitHub: raw.githubusercontent.com/HEAD/</text>
+  <text x="605" y="488" fill="#c4d3e0" font-size="8.5">▸ Local: reads filesystem paths</text>
+  <text x="605" y="506" fill="#8eabc5" font-size="8.5" font-weight="700">Parsers:</text>
+  <text x="605" y="520" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">parse_requirements_txt()</text>
+  <text x="605" y="534" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">parse_package_json()</text>
+  <text x="605" y="548" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">parse_pyproject_toml()</text>
+  <text x="605" y="562" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">parse_go_mod()   parse_nvmrc()</text>
+  <text x="605" y="578" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">EOL_MAP: 25 packages mapped to</text>
+  <text x="605" y="592" fill="#4fd9df" font-size="8" font-family="'DM Mono', monospace">endoflife.date product names</text>
+
+  <!-- ══════════ Ingest scripts ══════════ -->
+  <rect x="30" y="400" width="255" height="170" rx="10" fill="#0d1b2a" stroke="#f07235" stroke-width="1.2"/>
+  <rect x="30" y="400" width="255" height="32" rx="10" fill="#2a1a0a"/>
+  <rect x="30" y="420" width="255" height="12" fill="#2a1a0a"/>
+  <text x="157" y="422" text-anchor="middle" fill="#f07235" font-size="11" font-weight="800">ETL / Setup Scripts</text>
+  <text x="157" y="438" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">Run once to populate MongoDB Atlas</text>
+  <text x="45" y="460" fill="#f07235" font-size="9" font-weight="700">00_download_data.py</text>
+  <text x="45" y="474" fill="#6b84a0" font-size="8">  endoflife.date API → data/ JSON files</text>
+  <text x="45" y="492" fill="#f07235" font-size="9" font-weight="700">01_ingest.py</text>
+  <text x="45" y="506" fill="#6b84a0" font-size="8">  Normalize schema · Voyage AI embed · Atlas upsert</text>
+  <text x="45" y="524" fill="#f07235" font-size="9" font-weight="700">02_setup_index.py</text>
+  <text x="45" y="538" fill="#6b84a0" font-size="8">  Create $vectorSearch index on embedding field</text>
+  <text x="45" y="556" fill="#f07235" font-size="9" font-weight="700">verify_setup.py</text>
+  <text x="45" y="570" fill="#6b84a0" font-size="8">  Connection test · record count · sample query</text>
+
+  <!-- ══════════ MongoDB Atlas (right side) ══════════ -->
+  <rect x="860" y="78" width="145" height="300" rx="10" fill="#0d2a1a" stroke="#4ecb87" stroke-width="1.5"/>
+  <text x="932" y="100" text-anchor="middle" fill="#4ecb87" font-size="11" font-weight="800">MongoDB Atlas</text>
+  <text x="932" y="115" text-anchor="middle" fill="#6b84a0" font-size="8" font-family="'DM Mono', monospace">techdebt_copilot</text>
+  <line x1="870" y1="122" x2="995" y2="122" stroke="#1a3a1a" stroke-width="0.5"/>
+  <rect x="870" y="130" width="125" height="55" rx="5" fill="#0a2010" stroke="#1a3a1a"/>
+  <text x="932" y="146" text-anchor="middle" fill="#4ecb87" font-size="9" font-weight="700">eol_lifecycle</text>
+  <text x="932" y="160" text-anchor="middle" fill="#6b84a0" font-size="7.5">8,322 records</text>
+  <text x="932" y="173" text-anchor="middle" fill="#6b84a0" font-size="7.5">1024-dim vectors</text>
+
+  <rect x="870" y="196" width="125" height="55" rx="5" fill="#0a2010" stroke="#1a3a1a"/>
+  <text x="932" y="212" text-anchor="middle" fill="#4ecb87" font-size="9" font-weight="700">checkpoints</text>
+  <text x="932" y="226" text-anchor="middle" fill="#6b84a0" font-size="7.5">LangGraph state</text>
+  <text x="932" y="239" text-anchor="middle" fill="#6b84a0" font-size="7.5">per thread_id</text>
+
+  <text x="870" y="268" fill="#6b84a0" font-size="7.5">Queries used:</text>
+  <text x="870" y="281" fill="#4fd9df" font-size="7" font-family="'DM Mono', monospace">$vectorSearch (cosine)</text>
+  <text x="870" y="294" fill="#4fd9df" font-size="7" font-family="'DM Mono', monospace">$match + $group (agg)</text>
+  <text x="870" y="307" fill="#4fd9df" font-size="7" font-family="'DM Mono', monospace">find_one (EOL lookup)</text>
+  <text x="870" y="320" fill="#4ecb87" font-size="7" font-family="'DM Mono', monospace">checkpoint R/W</text>
+  <text x="870" y="345" fill="#6b84a0" font-size="7.5">Vector index:</text>
+  <text x="870" y="358" fill="#4fd9df" font-size="7" font-family="'DM Mono', monospace">vector_index</text>
+  <text x="870" y="371" fill="#6b84a0" font-size="7">cosine · 1024-dim</text>
+
+  <!-- ══════════ ARROWS between components ══════════ -->
+
+  <!-- app.py → graph.py (calls build_graph) -->
+  <path d="M 270 148 L 310 148" stroke="#4fd9df" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+  <text x="290" y="143" text-anchor="middle" fill="#4fd9df" font-size="7.5">build_graph</text>
+
+  <!-- graph.py → tools.py (binds tools) -->
+  <path d="M 550 148 L 590 148" stroke="#4fd9df" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+  <text x="570" y="143" text-anchor="middle" fill="#4fd9df" font-size="7.5">bind_tools</text>
+
+  <!-- tools.py → scanner.py -->
+  <path d="M 650 378 L 490 365" stroke="#8eabc5" stroke-width="1.2" fill="none" marker-end="url(#ar4)"/>
+  <text x="575" y="358" text-anchor="middle" fill="#8eabc5" font-size="7.5">calls scan_all()</text>
+
+  <!-- tools.py → repo_scanner.py -->
+  <path d="M 710 378 L 710 400" stroke="#8eabc5" stroke-width="1.2" fill="none" marker-end="url(#ar4)"/>
+  <text x="738" y="393" fill="#8eabc5" font-size="7.5">calls scan_repo()</text>
+
+  <!-- tools.py → Atlas -->
+  <path d="M 830 200 L 860 200" stroke="#4ecb87" stroke-width="1.5" fill="none" marker-end="url(#ar2)"/>
+  <text x="845" y="194" text-anchor="middle" fill="#4ecb87" font-size="7">Atlas queries</text>
+
+  <!-- graph.py → Atlas (checkpoint) -->
+  <path d="M 550 220 L 860 230" stroke="#4ecb87" stroke-width="1.5" fill="none" marker-end="url(#ar2)"/>
+  <text x="700" y="216" text-anchor="middle" fill="#4ecb87" font-size="7">checkpoint write/read</text>
+
+  <!-- app.py → Atlas (dashboard direct) -->
+  <path d="M 150 378 L 150 600 L 900 600 L 900 378" stroke="#4ecb87" stroke-width="1.2" fill="none" marker-end="url(#ar2)" stroke-dasharray="5,3"/>
+  <text x="500" y="616" text-anchor="middle" fill="#4ecb87" font-size="7.5">_eol_lookup() → direct find_one (dashboard, bypasses LLM)</text>
+
+  <!-- ETL → Atlas -->
+  <path d="M 285 485 L 860 245" stroke="#f07235" stroke-width="1.2" fill="none" marker-end="url(#ar3)" stroke-dasharray="5,3"/>
+  <text x="550" y="345" fill="#f07235" font-size="7.5">ingest (run once)</text>
+
+  <!-- ══ LEGEND ══ -->
+  <rect x="30" y="590" width="420" height="72" rx="6" fill="#0a1220" stroke="#1e3347" stroke-width="1"/>
+  <text x="45" y="607" fill="#8eabc5" font-size="8.5" font-weight="700">LEGEND</text>
+  <line x1="45" y1="618" x2="90" y2="618" stroke="#4fd9df" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="96" y="622" fill="#6b84a0" font-size="8">LLM / agent call flow</text>
+  <line x1="180" y1="618" x2="225" y2="618" stroke="#4ecb87" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="231" y="622" fill="#6b84a0" font-size="8">MongoDB / persistence</text>
+  <line x1="325" y1="618" x2="370" y2="618" stroke="#f07235" stroke-width="1.5" marker-end="url(#ar3)" stroke-dasharray="5,3"/>
+  <text x="376" y="622" fill="#6b84a0" font-size="8">One-time setup</text>
+  <line x1="45" y1="642" x2="90" y2="642" stroke="#4ecb87" stroke-width="1.2" marker-end="url(#ar2)" stroke-dasharray="5,3"/>
+  <text x="96" y="646" fill="#6b84a0" font-size="8">Direct path (bypasses LLM)</text>
+  <line x1="200" y1="642" x2="245" y2="642" stroke="#8eabc5" stroke-width="1.2" marker-end="url(#ar4)"/>
+  <text x="251" y="646" fill="#6b84a0" font-size="8">Module import / delegation</text>
+  <rect x="30" y="650" width="8" height="8" rx="2" fill="#0d1b2a" stroke="#4fd9df" stroke-width="1.5"/>
+  <text x="44" y="658" fill="#6b84a0" font-size="8">Agent-layer file</text>
+  <rect x="130" y="650" width="8" height="8" rx="2" fill="#0d1b2a" stroke="#8eabc5" stroke-width="1.2"/>
+  <text x="144" y="658" fill="#6b84a0" font-size="8">Utility / scanner file</text>
+  <rect x="250" y="650" width="8" height="8" rx="2" fill="#0d1b2a" stroke="#f07235" stroke-width="1.2"/>
+  <text x="264" y="658" fill="#6b84a0" font-size="8">ETL scripts (setup only)</text>
+</svg>
